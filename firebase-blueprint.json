@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "UserProfileDoc": {
+      "title": "UserProfileDoc",
+      "description": "User fitness profile, biometric details and preferences",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "name": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "provider": { "type": "string", "maxLength": 32 },
+        "age": { "type": "number" },
+        "sex": { "type": "string", "maxLength": 32 },
+        "heightCm": { "type": "number" },
+        "weightKg": { "type": "number" },
+        "unitSystem": { "type": "string", "maxLength": 16 },
+        "primaryGoal": { "type": "string", "maxLength": 64 },
+        "experience": { "type": "string", "maxLength": 32 },
+        "activityLevel": { "type": "string", "maxLength": 32 },
+        "trainingDaysPerWeek": { "type": "number" },
+        "preferredDurationMinutes": { "type": "number" },
+        "isOnboarded": { "type": "boolean" },
+        "hasCompletedAssessment": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "name", "email", "createdAt"]
+    },
+    "WorkoutSessionDoc": {
+      "title": "WorkoutSessionDoc",
+      "description": "Completed workout log record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "workoutId": { "type": "string", "maxLength": 128 },
+        "workoutTitle": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 64 },
+        "date": { "type": "string", "maxLength": 64 },
+        "durationSeconds": { "type": "number" },
+        "caloriesBurned": { "type": "number" },
+        "exercisesCompletedCount": { "type": "number" },
+        "totalExercisesCount": { "type": "number" },
+        "feedbackRating": { "type": "string", "maxLength": 32 },
+        "postFeeling": { "type": "string", "maxLength": 32 },
+        "xpEarned": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "workoutTitle", "durationSeconds", "createdAt"]
+    },
+    "UserGamificationDoc": {
+      "title": "UserGamificationDoc",
+      "description": "User XP and streak gamification state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "xp": { "type": "number" },
+        "currentLevelNumber": { "type": "number" },
+        "levelTitle": { "type": "string", "maxLength": 64 },
+        "currentStreakDays": { "type": "number" },
+        "totalWorkoutsCompleted": { "type": "number" },
+        "totalTrainingMinutes": { "type": "number" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "xp", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "UserProfileDoc" },
+      "description": "User profile with biographical data and fitness metrics"
+    },
+    "/users/{userId}/workouts/{workoutId}": {
+      "schema": { "$ref": "WorkoutSessionDoc" },
+      "description": "Individual completed workout logs for the user"
+    },
+    "/users/{userId}/gamification/{stateId}": {
+      "schema": { "$ref": "UserGamificationDoc" },
+      "description": "Gamification, streaks, and XP state for the user"
+    }
+  }
+}

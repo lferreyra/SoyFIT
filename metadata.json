@@ -1,0 +1,6 @@
+{
+  "name": "EVOLVE",
+  "description": "Entrenamiento funcional adaptativo, calistenia, nutrición y hábitos diarios personalizados. Tu rutina cambia con vos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
