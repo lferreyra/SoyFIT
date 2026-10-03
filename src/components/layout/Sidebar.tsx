@@ -11,7 +11,8 @@ import {
   RotateCcw,
   LogIn,
   LogOut,
-  Github
+  Github,
+  ShieldCheck
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { t } from '../../i18n';
@@ -33,7 +34,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab: propTab, onTabChan
     authUser,
     setIsAuthModalOpen,
     logoutUser,
-    user
+    user,
+    isAdmin,
+    setIsAdminModalOpen,
+    setIsLandingCarouselOpen
   } = useFitness();
 
   const activeTabKey = (propTab || contextTab || 'home').toUpperCase();
@@ -62,11 +66,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab: propTab, onTabChan
       <div>
         <div className="flex items-center gap-3 mb-1">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#56B89D] to-[#3B967D] flex items-center justify-center text-white font-black text-xl shadow-md shadow-[#56B89D]/20">
-            E
+            S
           </div>
           <div>
             <h1 className="text-xl font-extrabold tracking-tight text-[#20312D]">
-              EVOLVE
+              SOYFIT
             </h1>
             <span className="text-[11px] font-medium tracking-wide text-[#6F7D78] block">
               ENTRENAMIENTO ADAPTATIVO
@@ -188,6 +192,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab: propTab, onTabChan
             <span>Iniciar sesión / Sincronizar</span>
           </button>
         )}
+
+        {/* Admin Panel Access */}
+        <button
+          id="sidebar-admin-btn"
+          onClick={() => setIsAdminModalOpen(true)}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-[#182622] hover:bg-[#20312D] text-[#56B89D] text-xs font-bold shadow-xs border border-[#56B89D]/30 transition-all cursor-pointer group"
+          title="Modo Admin (lucas.ferreyra@gmail.com)"
+        >
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#56B89D] group-hover:scale-110 transition-transform" />
+            <span>Modo Admin</span>
+          </div>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#56B89D]/20 text-[#56B89D] font-extrabold uppercase">
+            {isAdmin ? 'Activo' : 'Master'}
+          </span>
+        </button>
+
+        {/* Presentation Carousel Tour */}
+        <button
+          id="sidebar-tour-btn"
+          onClick={() => setIsLandingCarouselOpen(true)}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:bg-white/80 transition-all cursor-pointer"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-[#56B89D]" />
+          <span>Conocer SOYFIT (Tour)</span>
+        </button>
 
         {/* Demo reset option */}
         <button

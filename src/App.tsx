@@ -26,6 +26,9 @@ import { WeeklyReviewModal } from './components/modals/WeeklyReviewModal';
 import { ReassessmentModal } from './components/modals/ReassessmentModal';
 import { AuthModal } from './components/modals/AuthModal';
 import { InAppReminderToast } from './components/common/InAppReminderToast';
+import { LandingCarousel } from './components/landing/LandingCarousel';
+import { AdminDashboardModal } from './components/modals/AdminDashboardModal';
+import { GoalSettingModal } from './components/modals/GoalSettingModal';
 
 const AppContent: React.FC = () => {
   const { 
@@ -41,7 +44,13 @@ const AppContent: React.FC = () => {
     isReassessmentModalOpen, 
     setIsReassessmentModalOpen,
     isAuthModalOpen,
-    setIsAuthModalOpen
+    setIsAuthModalOpen,
+    isAdminModalOpen,
+    setIsAdminModalOpen,
+    isLandingCarouselOpen,
+    setIsLandingCarouselOpen,
+    isGoalModalOpen,
+    setIsGoalModalOpen
   } = useFitness();
 
   return (
@@ -90,6 +99,23 @@ const AppContent: React.FC = () => {
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
+      />
+      <LandingCarousel 
+        isOpen={isLandingCarouselOpen}
+        onClose={() => {
+          setIsLandingCarouselOpen(false);
+          localStorage.setItem('SOYFIT_dismissed_carousel', 'true');
+        }}
+        onOpenLogin={() => setIsAuthModalOpen(true)}
+        onOpenRegister={() => setIsAuthModalOpen(true)}
+      />
+      <AdminDashboardModal 
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+      />
+      <GoalSettingModal
+        isOpen={isGoalModalOpen}
+        onClose={() => setIsGoalModalOpen(false)}
       />
       <InAppReminderToast />
     </div>

@@ -171,7 +171,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Flexiones estándar', 'Flexiones diamante sobre rodillas'],
     progressionOptions: ['Flexiones pseudo planche'],
     safetyNotes: 'Exige mayor movilidad de muñecas y codos. Calentá bien las articulaciones antes.',
-    imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80'
   },
 
   // PROGRESIÓN DE SENTADILLAS (TREN INFERIOR)

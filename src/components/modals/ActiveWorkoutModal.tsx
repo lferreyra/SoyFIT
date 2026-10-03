@@ -63,27 +63,25 @@ export const ActiveWorkoutModal: React.FC = () => {
     }
   }, [activeWorkout?.id]);
 
-  if (!activeWorkout || !activeWorkout.exercises || activeWorkout.exercises.length === 0) return null;
-
-  const totalExercises = activeWorkout.exercises.length;
-  const safeIndex = Math.min(Math.max(0, currentExIndex), totalExercises - 1);
-  const currentExercise = activeWorkout.exercises[safeIndex] || activeWorkout.exercises[0];
-  const fullExerciseData = getExerciseById(currentExercise.exerciseId);
-  const isTimedExercise = !!currentExercise.targetDurationSeconds;
+  const totalExercises = activeWorkout?.exercises?.length || 0;
+  const safeIndex = totalExercises > 0 ? Math.min(Math.max(0, currentExIndex), totalExercises - 1) : 0;
+  const currentExercise = (activeWorkout?.exercises && activeWorkout.exercises[safeIndex]) || (activeWorkout?.exercises && activeWorkout.exercises[0]) || null;
+  const fullExerciseData = currentExercise ? getExerciseById(currentExercise.exerciseId) : null;
+  const isTimedExercise = !!currentExercise?.targetDurationSeconds;
 
   // Global workout elapsed timer
   useEffect(() => {
-    if (isCompletionScreen || isPaused) return;
+    if (!activeWorkout || isCompletionScreen || isPaused) return;
     const interval = setInterval(() => {
       setElapsedTotalSeconds(prev => prev + 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [isCompletionScreen, isPaused]);
+  }, [activeWorkout, isCompletionScreen, isPaused]);
 
   // Rest countdown timer
   useEffect(() => {
     let interval: any = null;
-    if (isResting && !isPaused) {
+    if (activeWorkout && isResting && !isPaused) {
       interval = setInterval(() => {
         setRestSecondsLeft(prev => {
           if (prev <= 1) {
@@ -95,12 +93,12 @@ export const ActiveWorkoutModal: React.FC = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isResting, isPaused]);
+  }, [activeWorkout, isResting, isPaused]);
 
   // Timed exercise countdown
   useEffect(() => {
     let interval: any = null;
-    if (isTimedExercise && !isResting && !isPaused && !isCompletionScreen) {
+    if (activeWorkout && isTimedExercise && !isResting && !isPaused && !isCompletionScreen && currentExercise) {
       interval = setInterval(() => {
         setTimerExerciseSeconds(prev => {
           const target = currentExercise.targetDurationSeconds || 30;
@@ -113,7 +111,11 @@ export const ActiveWorkoutModal: React.FC = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isTimedExercise, isResting, isPaused, isCompletionScreen, currentExIndex, currentSet]);
+  }, [activeWorkout, isTimedExercise, isResting, isPaused, isCompletionScreen, currentExIndex, currentSet, currentExercise]);
+
+  if (!activeWorkout || !activeWorkout.exercises || activeWorkout.exercises.length === 0 || !currentExercise) {
+    return null;
+  }
 
   const handleCompleteSet = () => {
     if (currentSet < currentExercise.targetSets) {
@@ -340,14 +342,14 @@ export const ActiveWorkoutModal: React.FC = () => {
             {/* Exercise Visual Card */}
             <div className="relative h-48 sm:h-56 rounded-3xl overflow-hidden border border-white/80 shadow-md">
               <img 
-                src={fullExerciseData.imageUrl} 
+                src={fullExerciseData?.imageUrl || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80'} 
                 alt={currentExercise.exerciseName}
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
                 <span className="text-[10px] font-bold tracking-widest uppercase text-[#DCEFE8]">
-                  {CATEGORY_LABELS_ES[currentExercise.category] || currentExercise.category} • Etapa {fullExerciseData.progressionLevel}
+                  {CATEGORY_LABELS_ES[currentExercise.category] || currentExercise.category} • Etapa {fullExerciseData?.progressionLevel || 1}
                 </span>
                 <h2 className="text-2xl font-black tracking-tight drop-shadow-sm">
                   {currentExercise.exerciseName}

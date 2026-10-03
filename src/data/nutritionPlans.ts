@@ -39,6 +39,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 44,
       fatGrams: 14,
       prepTimeMinutes: 10,
+      imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
       ingredients: ['2 huevos enteros y 2 claras', '30g avena arrollada', '1 taza espinaca fresca', '1 cda semillas de chía', '1 cdta aceite de oliva'],
       instructions: [
         'Batir los huevos con las claras, sal marina y una pizca de pimienta.',
@@ -61,6 +62,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 64,
       fatGrams: 15,
       prepTimeMinutes: 15,
+      imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
       ingredients: ['140g pechuga de pollo', '1/2 taza lentejas cocidas', '1/2 taza quinoa cocida', 'Tomates cherry', 'Rúcula', 'Jugo de medio limón'],
       instructions: [
         'Sellar la pechuga a la plancha con orégano y limón hasta dorar (6 min).',
@@ -83,6 +85,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 38,
       fatGrams: 20,
       prepTimeMinutes: 20,
+      imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80',
       ingredients: ['150g salmón fresco o merluza', '1/2 taza garbanzos cocidos', '1 atado chico de espárragos', 'Romero', 'Pimentón dulce'],
       instructions: [
         'Disponer los garbanzos escurridos en una placa para horno con pimentón y sal marina.',
@@ -105,6 +108,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 12,
       fatGrams: 11,
       prepTimeMinutes: 3,
+      imageUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80',
       ingredients: ['150g yogur griego natural sin azúcar', '15g nueces picadas', '1 cdta semillas de calabaza', 'Canela'],
       instructions: [
         'Colocar el yogur en un pote o bowl.',
@@ -126,6 +130,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 52,
       fatGrams: 12,
       prepTimeMinutes: 12,
+      imageUrl: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=800&q=80',
       ingredients: ['40g harina de avena', '80g ricota descremada', '2 claras de huevo', 'Arándanos frescos', 'Esencia de vainilla'],
       instructions: [
         'Procesar la avena con la ricota, las claras y unas gotas de vainilla hasta lograr masa homogénea.',
@@ -148,6 +153,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 62,
       fatGrams: 16,
       prepTimeMinutes: 18,
+      imageUrl: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80',
       ingredients: ['130g lomo o ternera magra en tiras', '80g edamame pelado', '3/4 taza arroz integral cocido', 'Brócoli', 'Zanahoria', 'Salsa de soja baja en sodio'],
       instructions: [
         'Saltear la ternera en un wok bien caliente con un chorrito de aceite de sésamo u oliva (4 min).',
@@ -170,6 +176,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 36,
       fatGrams: 16,
       prepTimeMinutes: 15,
+      imageUrl: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80',
       ingredients: ['180g filete de merluza fresca', '3 cdas colmadas de hummus de garbanzos', 'Espinacas tiernas', 'Semillas de sésamo', 'Limón'],
       instructions: [
         'Cocinar la merluza a la plancha vuelta y vuelta con sal, pimienta y limón (3 min por lado).',
@@ -192,6 +199,7 @@ const OMNIVORE_RECIPES_POOL = [
       carbsGrams: 20,
       fatGrams: 8,
       prepTimeMinutes: 4,
+      imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
       ingredients: ['1 rebanada de pan 100% integral', '1 huevo duro en rodajas', '1 cda de hummus', 'Pizca de pimentón'],
       instructions: [
         'Tostar el pan integral.',
@@ -219,6 +227,7 @@ const VEGETARIAN_RECIPES_POOL = [
       carbsGrams: 42,
       fatGrams: 17,
       prepTimeMinutes: 10,
+      imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
       ingredients: ['2 huevos enteros', '60g tofu firme desmenuzado', '1 rebanada pan de centeno', 'Tomatitos secos', 'Cúrcuma y orégano'],
       instructions: [
         'Desmenuzar el tofu con tenedor y dorarlo 2 minutos en sartén con cúrcuma.',
@@ -240,6 +249,7 @@ const VEGETARIAN_RECIPES_POOL = [
       carbsGrams: 68,
       fatGrams: 18,
       prepTimeMinutes: 18,
+      imageUrl: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80',
       ingredients: ['1 taza garbanzos cocidos', '40g queso feta o ricota firme', '1 taza espinacas', '1/2 taza arroz basmati', 'Leche de coco liviana', 'Curry en polvo'],
       instructions: [
         'Dorar el curry con unas gotas de aceite y agregar los garbanzos.',
@@ -262,6 +272,7 @@ const VEGETARIAN_RECIPES_POOL = [
       carbsGrams: 54,
       fatGrams: 18,
       prepTimeMinutes: 20,
+      imageUrl: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?auto=format&fit=crop&w=800&q=80',
       ingredients: ['1 taza lentejas cocidas pisadas', '3 cdas avena arrollada', '60g ricota magra', '1/4 palta madura', 'Hojas verdes', 'Ajo y perejil'],
       instructions: [
         'Mezclar las lentejas con la avena, ajo y perejil picado; armar 2 medallones.',
@@ -283,6 +294,7 @@ const VEGETARIAN_RECIPES_POOL = [
       carbsGrams: 16,
       fatGrams: 8,
       prepTimeMinutes: 3,
+      imageUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80',
       ingredients: ['150g yogur griego descremado', '1 cda semillas de cáñamo (hemp seeds)', 'Frutillas o arándanos'],
       instructions: [
         'Mezclar el yogur griego con los frutos rojos y coronar con las semillas de cáñamo.'
@@ -309,6 +321,7 @@ const VEGAN_RECIPES_POOL = [
       carbsGrams: 46,
       fatGrams: 14,
       prepTimeMinutes: 10,
+      imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
       ingredients: ['150g tofu orgánico firme', '1 taza espinaca', '1 cda levadura nutricional', 'Pizca cúrcuma y sal negra (kala namak)', '1 rebanada pan de masa madre'],
       instructions: [
         'Desmenuzar el tofu en sartén caliente con cúrcuma y levadura nutricional.',
@@ -331,6 +344,7 @@ const VEGAN_RECIPES_POOL = [
       carbsGrams: 65,
       fatGrams: 18,
       prepTimeMinutes: 18,
+      imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
       ingredients: ['120g tempeh en cubos', '1/2 taza quinoa cocida', '80g edamame cocido', 'Repollo morado', 'Zanahoria', 'Aderezo de tahini y limón'],
       instructions: [
         'Marinar los cubos de tempeh con salsa de soja y limón 5 min.',
@@ -353,6 +367,7 @@ const VEGAN_RECIPES_POOL = [
       carbsGrams: 64,
       fatGrams: 15,
       prepTimeMinutes: 20,
+      imageUrl: 'https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80',
       ingredients: ['3/4 taza lentejas rojas partidas', '1 cda semillas de calabaza tostadas', 'Calabaza en cubitos', 'Jengibre rallado', 'Espinacas', 'Comino'],
       instructions: [
         'Cocinar las lentejas rojas con los cubitos de calabaza y comino por 12 minutos (se cocinan muy rápido).',
@@ -374,6 +389,7 @@ const VEGAN_RECIPES_POOL = [
       carbsGrams: 14,
       fatGrams: 9,
       prepTimeMinutes: 3,
+      imageUrl: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=800&q=80',
       ingredients: ['1 medida de proteína vegetal aislada (arveja/arroz)', '250 ml bebida vegetal sin azúcar', '1 cdta manteca de maní natural', 'Canela'],
       instructions: [
         'Agitar en shaker o licuar 30 segundos y beber frío.'
@@ -385,14 +401,15 @@ const VEGAN_RECIPES_POOL = [
 ];
 
 // ----------------------------------------------------
-// RECIPE TEMPLATES FOR DUKAN / KETO PROTEICA (DR. PIERRE DUKAN)
+// RECIPE TEMPLATES FOR PLAN HIPERPROTEICO / CETOGÉNICO MAGRO
+// (Sin menciones al Dr. Dukan: 100% enfoque en proteína pura, saciedad y definición)
 // ----------------------------------------------------
-const DUKAN_KETO_RECIPES_POOL = [
+const HIPERPROTEICO_RECIPES_POOL = [
   {
     breakfast: {
-      id: 'dukan-b-1',
+      id: 'hiperp-b-1',
       type: 'Breakfast' as const,
-      name: 'Galette Dukan de salvado de avena con revuelto de claras y pavo',
+      name: 'Galette de avena hiperproteica con revuelto de claras y pavo natural',
       calories: 360,
       proteinGrams: 38,
       proteinAnimalGrams: 32,
@@ -400,21 +417,22 @@ const DUKAN_KETO_RECIPES_POOL = [
       carbsGrams: 16,
       fatGrams: 11,
       prepTimeMinutes: 10,
-      ingredients: ['1.5 cda salvado de avena (dosis diaria Dukan)', '1 huevo entero y 3 claras', '50g pechuga de pavo natural 0% grasa', 'Sal marina y finas hierbas'],
+      imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80',
+      ingredients: ['1.5 cda salvado de avena', '1 huevo entero y 3 claras', '50g pechuga de pavo natural 0% grasa', 'Sal marina y finas hierbas'],
       instructions: [
         'Batir el huevo y las claras con el salvado de avena y una pizca de hierbas provenzales.',
         'Verter en sartén con apenas una gota de aceite esparcida con servilleta.',
         'Cocinar la galette 3 minutos por lado hasta que quede dorada y esponjosa.',
         'Servir acompañada de las fetas de pavo natural en rollitos.'
       ],
-      description: 'Clásico indiscutido del Dr. Pierre Dukan: el salvado de avena absorbe hasta 20 veces su volumen en agua, saciando el apetito y regulando la glucemia.',
-      dietaryTags: ['Método Dukan', 'Keto Proteico', 'Salvado de avena', 'Bajo en carbos'],
-      benefitTip: 'Fase de Ataque/Crucero: el salvado de avena atrapa calorías en el tránsito digestivo mientras la proteína pura estimula la termogénesis.'
+      description: 'Clásico del esquema hiperproteico: el salvado de avena absorbe hasta 20 veces su volumen en agua, saciando el apetito y regulando la glucemia.',
+      dietaryTags: ['Hiperproteico', 'Keto Magro', 'Salvado de avena', 'Bajo en carbos'],
+      benefitTip: 'El salvado de avena aporta fibra mucilaginosa que prolonga la saciedad mientras la proteína pura estimula la termogénesis.'
     },
     lunch: {
-      id: 'dukan-l-1',
+      id: 'hiperp-l-1',
       type: 'Lunch' as const,
-      name: 'Pechuga marinada a las hierbas con espárragos grillados (Día Proteína + Verdura)',
+      name: 'Pechuga marinada a las hierbas con espárragos grillados al limón',
       calories: 460,
       proteinGrams: 52,
       proteinAnimalGrams: 47,
@@ -422,6 +440,7 @@ const DUKAN_KETO_RECIPES_POOL = [
       carbsGrams: 8,
       fatGrams: 12,
       prepTimeMinutes: 15,
+      imageUrl: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
       ingredients: ['200g pechuga de pollo magra', '12 espárragos frescos', 'Mostaza de Dijon (sin azúcar)', 'Hierbas provenzales', 'Jugo de limón'],
       instructions: [
         'Untar la pechuga con una capa fina de mostaza de Dijon y jugo de limón.',
@@ -429,56 +448,58 @@ const DUKAN_KETO_RECIPES_POOL = [
         'En la misma plancha, grillar los espárragos con sal marina gruesa 5 minutos.',
         'Emplatar juntos para un almuerzo saciante y sin carbohidratos simples.'
       ],
-      description: 'Patrón de crucero Dukan (PV): máxima densidad proteica con fibra verde no feculenta que no eleva la insulina.',
-      dietaryTags: ['Método Dukan', 'Alto en proteína pura', 'Cero azúcares', 'Keto'],
-      benefitTip: 'Consumir 50g de proteína magra demanda un 25-30% de sus propias calorías solo para ser metabolizada (efecto térmico de los alimentos).'
+      description: 'Patrón proteico con vegetales: máxima densidad de aminoácidos con fibra verde no feculenta que mantiene la insulina en reposo.',
+      dietaryTags: ['Hiperproteico', 'Proteína pura magra', 'Cero azúcares', 'Keto'],
+      benefitTip: 'Los espárragos actúan como un diurético natural gracias a la asparagina, eliminando sodio retenido.'
     },
     dinner: {
-      id: 'dukan-d-1',
+      id: 'hiperp-d-1',
       type: 'Dinner' as const,
-      name: 'Lomo de atún fresco o salmón con salteado de espinacas y ajo',
-      calories: 440,
+      name: 'Lomo de abadejo o merluza al vapor con orégano y espinacas tiernas',
+      calories: 380,
       proteinGrams: 48,
-      proteinAnimalGrams: 43,
-      proteinPlantGrams: 5,
-      carbsGrams: 6,
-      fatGrams: 14,
-      prepTimeMinutes: 15,
-      ingredients: ['180g lomo de atún o salmón fresco', '2 tazas espinacas frescas', '1 diente de ajo laminado', 'Gotas de aceite de oliva', 'Sal gruesa'],
+      proteinAnimalGrams: 45,
+      proteinPlantGrams: 3,
+      carbsGrams: 4,
+      fatGrams: 8,
+      prepTimeMinutes: 12,
+      imageUrl: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+      ingredients: ['220g abadejo, lenguado o merluza negra', '2 tazas espinacas frescas', '1 diente de ajo laminado', 'Gotas de limón y sal marina'],
       instructions: [
-        'Sellar el lomo de atún 2 minutos de cada lado en plancha bien caliente (debe quedar rosado en el centro para conservar jugosidad).',
-        'En sartén contigua, dorar el ajo laminado y agregar las espinacas 90 segundos.',
-        'Servir inmediatamente con unas gotas de limón.'
+        'Cocinar el pescado al vapor o en papillote durante 8 minutos con ajo y limón.',
+        'Saltear las espinacas 90 segundos con fuego fuerte apenas humedecidas.',
+        'Servir el pescado blanco sobre el lecho verde caliente.'
       ],
-      description: 'Pescado noble rico en aminoácidos esenciales y omega-3 sin interrupción del estado de cetosis nutricional.',
-      dietaryTags: ['Método Dukan', 'Proteína Pura Marina', 'Cetosis'],
-      benefitTip: 'Excelente opción para cena Dukan: saciedad absoluta sin retención de líquidos nocturna.'
+      description: 'Digestión en menos de 90 minutos: proteína pura marina libre de grasas saturadas para máxima quema lipolítica durante la noche.',
+      dietaryTags: ['Hiperproteico', 'Proteína Marina Pura', 'Cetosis'],
+      benefitTip: 'Excelente opción para cena liviana: saciedad absoluta sin retención de líquidos nocturna.'
     },
     snack: {
-      id: 'dukan-s-1',
+      id: 'hiperp-s-1',
       type: 'Snack' as const,
-      name: 'Queso blanco 0% grasa batido con canela y gotas de vainilla',
+      name: 'Crema batida de queso blanco 0% con canela y esencia de vainilla',
       calories: 140,
       proteinGrams: 20,
       proteinAnimalGrams: 20,
       proteinPlantGrams: 0,
-      carbsGrams: 6,
-      fatGrams: 0,
+      carbsGrams: 5,
+      fatGrams: 1,
       prepTimeMinutes: 2,
-      ingredients: ['180g queso blanco o ricota 0% materia grasa', 'Pizca canela de Ceilán', 'Esencia de vainilla'],
+      imageUrl: 'https://images.unsplash.com/photo-1505253758473-96b7015fcd40?auto=format&fit=crop&w=800&q=80',
+      ingredients: ['180g queso blanco untable 0% grasa o queso quark', 'Canela de Ceilán en polvo', 'Gotitas de vainilla natural'],
       instructions: [
         'Batir el queso 0% con tenedor hasta que quede como una crema suave.',
         'Aromatizar con vainilla y canela.'
       ],
-      description: 'Colación permitida a voluntad en el esquema del Dr. Dukan: 100% caseína magra anti-ansiedad.',
-      dietaryTags: ['Método Dukan', '0% Grasa', 'Express']
+      description: 'Colación saciante del esquema hiperproteico: 100% caseína magra anti-ansiedad.',
+      dietaryTags: ['Hiperproteico', '0% Grasa', 'Express']
     }
   },
   {
     breakfast: {
-      id: 'dukan-b-2',
+      id: 'hiperp-b-2',
       type: 'Breakfast' as const,
-      name: 'Omelette Dukan de 3 claras y 1 yema con queso magro 0% y orégano',
+      name: 'Omelette proteico de 3 claras y 1 yema con queso magro 0% y orégano',
       calories: 320,
       proteinGrams: 36,
       proteinAnimalGrams: 35,
@@ -486,6 +507,7 @@ const DUKAN_KETO_RECIPES_POOL = [
       carbsGrams: 4,
       fatGrams: 10,
       prepTimeMinutes: 8,
+      imageUrl: 'https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80',
       ingredients: ['1 huevo entero y 3 claras', '40g queso magro 0% grasa', 'Orégano seco', 'Pizca sal marina'],
       instructions: [
         'Batir enérgicamente las claras y el huevo con orégano.',
@@ -494,11 +516,11 @@ const DUKAN_KETO_RECIPES_POOL = [
         'Tapar 1 minuto para que el queso se funda.'
       ],
       description: 'Proteína pura matutina de rápida absorción con mínimo impacto calórico.',
-      dietaryTags: ['Método Dukan', 'Proteína Pura (PP)', 'Keto'],
-      benefitTip: 'Ideal para días de Proteína Pura (PP) que aceleran la lipólisis sin pérdida de masa muscular.'
+      dietaryTags: ['Hiperproteico', 'Proteína Pura', 'Keto'],
+      benefitTip: 'Ideal para días de enfoque proteico puro que aceleran la lipólisis sin pérdida de masa muscular.'
     },
     lunch: {
-      id: 'dukan-l-2',
+      id: 'hiperp-l-2',
       type: 'Lunch' as const,
       name: 'Medallones de ternera magra a la pimienta con calabacín (zucchini) asado',
       calories: 490,
@@ -508,6 +530,7 @@ const DUKAN_KETO_RECIPES_POOL = [
       carbsGrams: 7,
       fatGrams: 14,
       prepTimeMinutes: 16,
+      imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
       ingredients: ['200g bola de lomo o cuadril magro', '1 zucchini mediano en rodajas', 'Pimienta negra recién molida', 'Romero fresco'],
       instructions: [
         'Sellar la carne magra a la plancha bien caliente al punto deseado con pimienta abundante.',
@@ -515,11 +538,11 @@ const DUKAN_KETO_RECIPES_POOL = [
         'Servir caliente aromatizado con romero.'
       ],
       description: 'Aporte masivo de hierro hemínico, vitamina B12 y zinc para maximizar la síntesis de hemoglobina y energía mitocondrial.',
-      dietaryTags: ['Método Dukan', 'Proteína + Verdura (PV)', 'Alto en hierro'],
-      benefitTip: 'El calabacín aporta potasio para contrarrestar la pérdida de electrolitos típica del proceso keto.'
+      dietaryTags: ['Hiperproteico', 'Proteína + Verdura', 'Alto en hierro'],
+      benefitTip: 'El calabacín aporta potasio para contrarrestar la pérdida de electrolitos típica del proceso proteico.'
     },
     dinner: {
-      id: 'dukan-d-2',
+      id: 'hiperp-d-2',
       type: 'Dinner' as const,
       name: 'Salteado de mariscos y langostinos al ajillo con hinojo crocante',
       calories: 390,
@@ -529,6 +552,7 @@ const DUKAN_KETO_RECIPES_POOL = [
       carbsGrams: 5,
       fatGrams: 9,
       prepTimeMinutes: 12,
+      imageUrl: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=800&q=80',
       ingredients: ['220g langostinos o mix de mariscos limpios', '1 diente de ajo', '1/2 bulbo de hinojo en juliana fina', 'Perejil picado', 'Gotas de limón'],
       instructions: [
         'Dorar el ajo en sartén bien caliente.',
@@ -536,12 +560,12 @@ const DUKAN_KETO_RECIPES_POOL = [
         'Incorporar el hinojo en juliana los últimos 90 segundos para preservar su textura crujiente.',
         'Finalizar con perejil fresco y unas gotas de limón.'
       ],
-      description: 'Cena marina gourmet con casi 0g de carbohidratos, altísima biodisponibilidad de yodo y selenio.',
-      dietaryTags: ['Método Dukan', 'Mariscos', 'Cena proteica pura'],
+      description: 'Cena marina con casi 0g de carbohidratos, altísima biodisponibilidad de yodo y selenio.',
+      dietaryTags: ['Hiperproteico', 'Mariscos', 'Cena proteica pura'],
       benefitTip: 'El yodo de los mariscos optimiza el funcionamiento de la glándula tiroides y el metabolismo basal.'
     },
     snack: {
-      id: 'dukan-s-2',
+      id: 'hiperp-s-2',
       type: 'Snack' as const,
       name: 'Rollitos de pechuga de pavo con huevo poché o duro',
       calories: 180,
@@ -551,12 +575,13 @@ const DUKAN_KETO_RECIPES_POOL = [
       carbsGrams: 1,
       fatGrams: 7,
       prepTimeMinutes: 4,
+      imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=800&q=80',
       ingredients: ['3 fetas de pechuga de pavo cocida artesanal', '1 huevo duro o poché', 'Pizca de pimentón'],
       instructions: [
         'Envolver gajos de huevo en cada feta de pavo con una pizca de pimentón.'
       ],
       description: 'Snack 100% proteico para saciar cualquier antojo entre comidas sin alterar la cetosis.',
-      dietaryTags: ['Método Dukan', 'Proteína Pura', 'Cero carbos']
+      dietaryTags: ['Hiperproteico', 'Proteína Pura', 'Cero carbos']
     }
   }
 ];
@@ -585,8 +610,9 @@ export function getMealPlanForDay(dayNumber: number, diet: DietaryPreferenceType
     case 'vegan':
       pool = VEGAN_RECIPES_POOL;
       break;
+    case 'hiperproteico':
     case 'dukan_keto':
-      pool = DUKAN_KETO_RECIPES_POOL;
+      pool = HIPERPROTEICO_RECIPES_POOL;
       break;
     case 'omnivore':
     default:

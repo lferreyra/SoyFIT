@@ -4,7 +4,7 @@ import { esLATAM } from '../es-LATAM';
 export const enUS: typeof esLATAM = {
   ...esLATAM,
   app: {
-    name: 'EVOLVE',
+    name: 'SOYFIT',
     tagline: 'Your workout evolves with you',
     description: 'Adaptive personalized fitness, calisthenics, functional training, and habits.'
   },

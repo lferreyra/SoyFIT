@@ -1,22 +1,46 @@
 import React from 'react';
-import { Sparkles, Flame, Activity, LogIn, User as UserIcon } from 'lucide-react';
+import { Sparkles, Flame, Activity, LogIn, User as UserIcon, ShieldCheck } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 
 export const TopBar: React.FC = () => {
-  const { readiness, gamification, setIsCoachModalOpen, authUser, user, setIsAuthModalOpen, setCurrentTab } = useFitness();
+  const { 
+    readiness, 
+    gamification, 
+    setIsCoachModalOpen, 
+    authUser, 
+    user, 
+    setIsAuthModalOpen, 
+    setCurrentTab,
+    isAdmin,
+    setIsAdminModalOpen,
+    setIsLandingCarouselOpen
+  } = useFitness();
 
   return (
     <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white/50 backdrop-blur-xl border-b border-white/60 sticky top-0 z-30">
-      <div className="flex items-center gap-2">
+      <div 
+        onClick={() => setIsLandingCarouselOpen(true)}
+        className="flex items-center gap-2 cursor-pointer"
+        title="Ver presentación de SOYFIT"
+      >
         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#56B89D] to-[#3B967D] flex items-center justify-center text-white font-extrabold text-sm shadow-sm">
-          E
+          S
         </div>
         <span className="font-extrabold text-base tracking-tight text-[#20312D]">
-          EVOLVE
+          SOYFIT
         </span>
       </div>
 
       <div className="flex items-center gap-1.5">
+        {/* Admin Quick Button */}
+        <button
+          onClick={() => setIsAdminModalOpen(true)}
+          className="p-1.5 rounded-full bg-[#182622] text-[#56B89D] shadow-xs hover:scale-105 transition-transform cursor-pointer border border-[#56B89D]/40"
+          title="Modo Admin (lucas.ferreyra@gmail.com)"
+        >
+          <ShieldCheck className="w-4 h-4 text-[#56B89D]" />
+        </button>
+
         {/* Streak Pill */}
         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/80 border border-white text-xs font-bold text-[#20312D] shadow-xs">
           <Flame className="w-3.5 h-3.5 text-[#E9A06D]" />

@@ -61,15 +61,15 @@ export const NutritionView: React.FC = () => {
       desc: '100% Proteínas vegetales completas: tempeh, lentejas, levadura nutricional y semillas.' 
     },
     { 
-      id: 'dukan_keto', 
-      label: 'Keto / Método Dukan', 
+      id: 'hiperproteico', 
+      label: 'Hiperproteico / Keto', 
       icon: Flame, 
-      desc: 'Inspirado en el Dr. Pierre Dukan: alta proteína pura magra, salvado de avena y carbohidratos mínimos.' 
+      desc: 'Alta densidad proteica magra, vegetales verdes seleccionados y carbohidratos controlados para máxima saciedad y definición.' 
     }
   ];
 
   const currentDay = nutrition.selectedChallengeDay || 1;
-  const currentDiet = nutrition.dietaryPreference || 'omnivore';
+  const currentDiet = (nutrition.dietaryPreference === 'dukan_keto' ? 'hiperproteico' : nutrition.dietaryPreference) || 'omnivore';
 
   const mealTypeLabels: Record<string, string> = {
     'Breakfast': 'Desayuno',
@@ -334,8 +334,8 @@ export const NutritionView: React.FC = () => {
             />
           </div>
           <span className="text-[10px] text-[#6F7D78] block">
-            {currentDiet === 'dukan_keto' 
-              ? 'Esquema Dr. Pierre Dukan: Proteínas puras y verduras verdes seleccionadas para preservar músculo e inducir cetosis saciante.'
+            {currentDiet === 'hiperproteico' || currentDiet === 'dukan_keto'
+              ? 'Esquema Hiperproteico: Proteínas puras magras y verduras verdes seleccionadas para preservar músculo, acelerar el metabolismo y brindar saciedad prolongada.'
               : currentDiet === 'vegan'
                 ? 'Combinación completa de legumbres, cereales ancestrales y semillas para aportar los 9 aminoácidos esenciales.'
                 : 'La sinergia entre aminoácidos animales y vegetales optimiza la digestión intestinal y previene la sobrecarga inflamatoria.'
@@ -363,41 +363,61 @@ export const NutritionView: React.FC = () => {
             return (
               <div
                 key={meal.id}
-                className="p-5 rounded-3xl bg-white/90 border border-white shadow-2xs space-y-4 transition-all"
+                className="p-5 rounded-3xl bg-white/90 border border-white shadow-2xs space-y-4 transition-all overflow-hidden"
               >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="space-y-1.5 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-[#DCEFE8] text-[#20312D] text-[10px] font-black uppercase tracking-wider">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {/* Recipe Image Card */}
+                  {meal.imageUrl && (
+                    <div className="w-full sm:w-48 h-36 sm:h-auto rounded-2xl overflow-hidden shrink-0 border border-black/5 shadow-2xs relative">
+                      <img 
+                        src={meal.imageUrl} 
+                        alt={meal.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="absolute bottom-2 left-2 px-2.5 py-0.5 rounded-lg bg-black/60 backdrop-blur-md text-[10px] font-extrabold text-white">
                         {mealTypeLabels[meal.type] || meal.type}
                       </span>
-                      <span className="flex items-center gap-1 text-xs font-bold text-[#6F7D78]">
-                        <Clock className="w-3.5 h-3.5 text-[#56B89D]" />
-                        {meal.prepTimeMinutes} min de preparación
-                      </span>
-                      <span className="text-xs font-black text-[#20312D]">
-                        • ~{formatCalories(meal.calories)}
-                      </span>
                     </div>
+                  )}
 
-                    <h4 className="text-base sm:text-lg font-black text-[#20312D] tracking-tight">
-                      {meal.name}
-                    </h4>
+                  <div className="flex-1 flex flex-col justify-between space-y-2">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-3 py-1 rounded-full bg-[#DCEFE8] text-[#20312D] text-[10px] font-black uppercase tracking-wider">
+                            {mealTypeLabels[meal.type] || meal.type}
+                          </span>
+                          <span className="flex items-center gap-1 text-xs font-bold text-[#6F7D78]">
+                            <Clock className="w-3.5 h-3.5 text-[#56B89D]" />
+                            {meal.prepTimeMinutes} min
+                          </span>
+                          <span className="text-xs font-black text-[#20312D]">
+                            • ~{formatCalories(meal.calories)}
+                          </span>
+                        </div>
 
-                    <p className="text-xs text-[#6F7D78] leading-relaxed">
-                      {meal.description}
-                    </p>
+                        {/* Swap Button */}
+                        <button
+                          onClick={() => swapMeal(meal.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:border-[#56B89D] transition-colors shrink-0 shadow-2xs cursor-pointer"
+                          title="Generar otra variante de receta"
+                        >
+                          <RotateCw className="w-3.5 h-3.5 text-[#56B89D]" />
+                          <span>{t('nutrition.swapMeal')}</span>
+                        </button>
+                      </div>
+
+                      <h4 className="text-base sm:text-lg font-black text-[#20312D] tracking-tight">
+                        {meal.name}
+                      </h4>
+
+                      <p className="text-xs text-[#6F7D78] leading-relaxed">
+                        {meal.description}
+                      </p>
+                    </div>
                   </div>
-
-                  {/* Swap Button */}
-                  <button
-                    onClick={() => swapMeal(meal.id)}
-                    className="self-start sm:self-center flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-black/10 text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:border-[#56B89D] transition-colors shrink-0 shadow-2xs cursor-pointer"
-                    title="Generar otra variante de receta"
-                  >
-                    <RotateCw className="w-3.5 h-3.5 text-[#56B89D]" />
-                    <span>{t('nutrition.swapMeal')}</span>
-                  </button>
                 </div>
 
                 {/* Macros & Protein Balance Pill */}

@@ -190,6 +190,8 @@ export async function syncUserProfileToFirestore(userId: string, profile: Partia
       isOnboarded: profile.isOnboarded ?? true,
       hasCompletedAssessment: profile.hasCompletedAssessment ?? true,
       reminderPreferences: profile.reminderPreferences ?? null,
+      role: profile.email === 'lucas.ferreyra@gmail.com' ? 'admin' : (profile.role || 'user'),
+      lastActiveAt: new Date().toISOString(),
       createdAt: docSnap.exists() ? (docSnap.data()?.createdAt || new Date().toISOString()) : new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -213,6 +215,28 @@ export async function fetchUserProfileFromFirestore(userId: string): Promise<Use
   } catch (error) {
     handleFirestoreError(error, OperationType.GET, path);
     return null;
+  }
+}
+
+export async function fetchAllUsersForAdmin(): Promise<UserProfile[]> {
+  const path = 'users';
+  try {
+    const colRef = collection(db, 'users');
+    const q = query(colRef, limit(100));
+    const querySnapshot = await getDocs(q);
+    const results: UserProfile[] = [];
+    querySnapshot.forEach(docSnap => {
+      const data = docSnap.data() as UserProfile;
+      results.push({
+        ...data,
+        id: docSnap.id,
+        uid: data.uid || docSnap.id
+      });
+    });
+    return results;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, path);
+    return [];
   }
 }
 

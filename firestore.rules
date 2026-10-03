@@ -21,6 +21,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'lucas.ferreyra@gmail.com';
+    }
+
     function isValidId(id) {
       return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
@@ -41,7 +45,9 @@ service cloud.firestore {
              (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 512)) &&
              (!('age' in data) || (data.age is number && data.age >= 0 && data.age <= 130)) &&
              (!('heightCm' in data) || (data.heightCm is number && data.heightCm >= 40 && data.heightCm <= 300)) &&
-             (!('weightKg' in data) || (data.weightKg is number && data.weightKg >= 20 && data.weightKg <= 500));
+             (!('weightKg' in data) || (data.weightKg is number && data.weightKg >= 20 && data.weightKg <= 500)) &&
+             (!('lastActiveAt' in data) || (data.lastActiveAt is string && data.lastActiveAt.size() <= 64)) &&
+             (!('role' in data) || (data.role is string && data.role.size() <= 32));
     }
 
     // Validation Blueprint for WorkoutSession
@@ -64,28 +70,28 @@ service cloud.firestore {
 
     // User Profile Document and Subcollections
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if isSignedIn() && existing().uid == request.auth.uid;
-      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().uid == request.auth.uid;
-      allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().uid == existing().uid;
-      allow delete: if isOwner(userId) && isValidId(userId);
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin() || (isSignedIn() && existing().uid == request.auth.uid);
+      allow create: if (isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().uid == request.auth.uid) || isAdmin();
+      allow update: if (isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().uid == existing().uid) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
 
       // Workouts Subcollection
       match /workouts/{workoutId} {
-        allow get: if isOwner(userId) && isValidId(workoutId);
-        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
         allow create: if isOwner(userId) && isValidId(workoutId) && isValidWorkoutSession(incoming()) && incoming().userId == request.auth.uid;
         allow update: if isOwner(userId) && isValidId(workoutId) && isValidWorkoutSession(incoming()) && incoming().userId == existing().userId;
-        allow delete: if isOwner(userId) && isValidId(workoutId);
+        allow delete: if isOwner(userId) || isAdmin();
       }
 
       // Gamification Subcollection
       match /gamification/{stateId} {
-        allow get: if isOwner(userId) && isValidId(stateId);
-        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
         allow create: if isOwner(userId) && isValidId(stateId) && isValidGamification(incoming()) && incoming().userId == request.auth.uid;
         allow update: if isOwner(userId) && isValidId(stateId) && isValidGamification(incoming()) && incoming().userId == existing().userId;
-        allow delete: if isOwner(userId) && isValidId(stateId);
+        allow delete: if isOwner(userId) || isAdmin();
       }
     }
   }

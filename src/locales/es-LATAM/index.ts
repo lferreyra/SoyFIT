@@ -1,8 +1,8 @@
-// Centralized Latin American Spanish (es-LATAM) translations for EVOLVE
+// Centralized Latin American Spanish (es-LATAM) translations for SOYFIT
 
 export const esLATAM = {
   app: {
-    name: 'EVOLVE',
+    name: 'SOYFIT',
     tagline: 'Tu entrenamiento evoluciona con vos',
     description: 'Entrenamiento funcional adaptativo, calistenia, nutrición y hábitos diarios personalizados.'
   },
@@ -320,7 +320,7 @@ export const esLATAM = {
     q3: '¿Cómo mejoro la técnica de mis flexiones?'
   },
   onboarding: {
-    welcomeTitle: 'Bienvenido a EVOLVE',
+    welcomeTitle: 'Bienvenido a SOYFIT',
     welcomeSubtitle: 'Tu entrenamiento que realmente se adapta a vos',
     stepGoals: 'Tus objetivos',
     stepExperience: 'Tu experiencia',

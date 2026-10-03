@@ -10,7 +10,9 @@ import {
   ChevronRight, 
   Zap, 
   Footprints, 
-  Heart
+  Heart,
+  ShieldCheck,
+  Target
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { GlassCard } from '../common/GlassCard';
@@ -28,7 +30,11 @@ export const HomeView: React.FC = () => {
     toggleHabit, 
     gamification, 
     setIsCoachModalOpen,
-    setIsWeeklyReviewOpen
+    setIsWeeklyReviewOpen,
+    isAdmin,
+    setIsAdminModalOpen,
+    setIsLandingCarouselOpen,
+    setIsGoalModalOpen
   } = useFitness();
 
   const [isReadinessCheckinOpen, setIsReadinessCheckinOpen] = useState(false);
@@ -93,14 +99,64 @@ export const HomeView: React.FC = () => {
           </p>
         </div>
 
-        {/* Weekly Digest Pill */}
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {/* Tour App Carousel Pill */}
+          <button
+            onClick={() => setIsLandingCarouselOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white/80 hover:bg-white border border-white text-xs font-bold text-[#20312D] shadow-xs transition-all cursor-pointer"
+            title="Conocer funcionalidades de SOYFIT"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#56B89D]" />
+            <span>Tour SOYFIT</span>
+          </button>
+
+          {/* Admin Mode Pill */}
+          {isAdmin && (
+            <button
+              onClick={() => setIsAdminModalOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#16221F] hover:bg-[#20312D] border border-[#56B89D]/40 text-xs font-extrabold text-[#56B89D] shadow-xs transition-all cursor-pointer"
+              title="Panel de Administración (lucas.ferreyra@gmail.com)"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#56B89D]" />
+              <span>Admin</span>
+            </button>
+          )}
+
+          {/* Weekly Digest Pill */}
+          <button
+            onClick={() => setIsWeeklyReviewOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white/80 border border-white text-xs font-extrabold text-[#20312D] hover:bg-white shadow-xs transition-all cursor-pointer"
+          >
+            <Clock className="w-3.5 h-3.5 text-[#56B89D]" />
+            <span>{t('home.weeklyReview')}</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#6F7D78]" />
+          </button>
+        </div>
+      </div>
+
+      {/* USER GOAL & ROUTINE DEFINITION STRIP */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/80 border border-white shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#DCEFE8] text-[#56B89D] flex items-center justify-center shrink-0 shadow-2xs">
+            <Target className="w-5 h-5 text-[#56B89D]" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-[#20312D] flex items-center gap-2">
+              <span>Objetivo de rutina: <strong className="text-[#56B89D] capitalize">{user.primaryGoal ? user.primaryGoal.replace(/_/g, ' ') : 'Fuerza y Calistenia'}</strong></span>
+              <span className="text-[10px] text-[#6F7D78] hidden sm:inline">• {user.trainingDaysPerWeek || 4} días/sem • {user.preferredDurationMinutes || 30} min</span>
+            </div>
+            <p className="text-[11px] text-[#6F7D78] font-medium">
+              Tus entrenamientos diarios se calibran automáticamente para esta meta
+            </p>
+          </div>
+        </div>
+
         <button
-          onClick={() => setIsWeeklyReviewOpen(true)}
-          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/80 border border-white text-xs font-extrabold text-[#20312D] hover:bg-white shadow-xs transition-all cursor-pointer"
+          type="button"
+          onClick={() => setIsGoalModalOpen(true)}
+          className="self-start sm:self-auto px-4 py-2 rounded-xl bg-[#20312D] hover:bg-black text-white text-xs font-extrabold transition-all cursor-pointer shrink-0"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#56B89D]" />
-          <span>{t('home.weeklyReview')}</span>
-          <ChevronRight className="w-3.5 h-3.5 text-[#6F7D78]" />
+          Definir objetivos
         </button>
       </div>
 

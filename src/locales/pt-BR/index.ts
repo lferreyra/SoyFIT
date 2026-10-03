@@ -4,7 +4,7 @@ import { esLATAM } from '../es-LATAM';
 export const ptBR: typeof esLATAM = {
   ...esLATAM,
   app: {
-    name: 'EVOLVE',
+    name: 'SOYFIT',
     tagline: 'Seu treino evolui com você',
     description: 'Treino funcional adaptativo, calistenia, nutrição e hábitos personalizados.'
   },

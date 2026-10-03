@@ -8,7 +8,8 @@ import {
   Flame, 
   CheckCircle2, 
   X,
-  ShieldCheck
+  ShieldCheck,
+  Target
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { GlassCard, GlassPill } from '../common/GlassCard';
@@ -18,11 +19,13 @@ import { t, CATEGORY_LABELS_ES, DIFFICULTY_LABELS_ES, formatCalories } from '../
 
 export const TrainView: React.FC = () => {
   const { 
+    user,
     todayWorkout, 
     startWorkout, 
     launchQuickWorkout, 
     generateCustomSession, 
-    program 
+    program,
+    setIsGoalModalOpen
   } = useFitness();
 
   // Custom Workout Generator State
@@ -109,13 +112,22 @@ export const TrainView: React.FC = () => {
       <GlassCard className="p-6 sm:p-7 bg-white/90">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="space-y-2 max-w-xl">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full bg-[#DCEFE8] text-[#20312D] text-[10px] font-black uppercase tracking-wider">
                 {t('train.recommendedToday')}
               </span>
               <span className="text-xs text-[#6F7D78] font-bold">
                 {todayCategoryLabel}
               </span>
+              <button
+                type="button"
+                onClick={() => setIsGoalModalOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 hover:bg-[#DCEFE8] text-[10px] font-extrabold text-[#20312D] transition-colors cursor-pointer"
+                title="Modificar objetivo principal"
+              >
+                <Target className="w-3 h-3 text-[#56B89D]" />
+                <span className="capitalize">{user.primaryGoal ? user.primaryGoal.replace(/_/g, ' ') : 'Fuerza'}</span>
+              </button>
             </div>
             <h2 className="text-2xl font-black text-[#20312D] tracking-tight">
               {todayWorkout.title}

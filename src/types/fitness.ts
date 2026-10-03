@@ -1,4 +1,4 @@
-// EVOLVE Domain Types & Data Contracts
+// SOYFIT Domain Types & Data Contracts
 
 export type FitnessGoal = 
   | 'lose_fat'
@@ -88,6 +88,8 @@ export interface UserProfile {
   isOnboarded: boolean;
   hasCompletedAssessment: boolean;
   reminderPreferences?: ReminderPreferences;
+  role?: 'admin' | 'user';
+  lastActiveAt?: string;
   createdAt: string;
 }
 
@@ -308,9 +310,10 @@ export interface Meal {
   description: string;
   dietaryTags: string[];
   benefitTip?: string;
+  imageUrl?: string;
 }
 
-export type DietaryPreferenceType = 'omnivore' | 'vegetarian' | 'vegan' | 'dukan_keto';
+export type DietaryPreferenceType = 'omnivore' | 'vegetarian' | 'vegan' | 'hiperproteico' | 'dukan_keto';
 
 export interface NutritionPlan {
   dailyCalorieTarget: number;

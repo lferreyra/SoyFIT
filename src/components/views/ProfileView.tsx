@@ -56,7 +56,10 @@ export const ProfileView: React.FC = () => {
     triggerTestReminder,
     notificationPermission,
     requestBrowserNotificationPermission,
-    todayWorkout
+    todayWorkout,
+    isAdmin,
+    setIsAdminModalOpen,
+    setIsLandingCarouselOpen
   } = useFitness();
 
   const [savedNotice, setSavedNotice] = useState(false);
@@ -812,6 +815,53 @@ export const ProfileView: React.FC = () => {
           </div>
         )}
       </GlassCard>
+
+      {/* MODO ADMINISTRADOR */}
+      <GlassCard className="p-6 sm:p-7 border-2 border-[#56B89D]/40 bg-gradient-to-br from-[#16221F] to-[#20312D] text-white">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#56B89D] to-[#3B967D] flex items-center justify-center text-white shadow-md shadow-[#56B89D]/20">
+              <ShieldCheck className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-black text-white">Modo Administrador</h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#56B89D]/20 text-[#56B89D] text-[11px] font-black uppercase tracking-wider">
+                  Admin SOYFIT
+                </span>
+              </div>
+              <p className="text-xs text-gray-300">
+                Visualización de usuarios: nombre completo, edad, correo electrónico y última conexión.
+              </p>
+              <p className="text-[11px] text-[#56B89D] font-mono mt-0.5">
+                Autorizado: lucas.ferreyra@gmail.com
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="profile-open-admin-btn"
+            onClick={() => setIsAdminModalOpen(true)}
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#56B89D] hover:bg-[#4AA88F] text-[#111A18] font-black text-xs shadow-lg shadow-[#56B89D]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#111A18]" />
+            <span>Abrir Panel de Usuarios</span>
+          </button>
+        </div>
+      </GlassCard>
+
+      {/* TOUR CAROUSEL CTA */}
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={() => setIsLandingCarouselOpen(true)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/80 hover:bg-white text-xs font-bold text-[#20312D] border border-black/10 shadow-2xs transition-all cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-[#56B89D]" />
+          <span>Ver carrousel de funcionalidades de SOYFIT</span>
+        </button>
+      </div>
 
       {/* CONNECTED HEALTH & WEARABLES */}
       <GlassCard className="p-6 sm:p-7">

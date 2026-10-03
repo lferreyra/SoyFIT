@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { 
   UserProfile, 
@@ -154,7 +154,7 @@ const DEFAULT_COACH_MESSAGES: AICoachMessage[] = [
   {
     id: 'c1',
     sender: 'coach',
-    text: "¡Te doy la bienvenida a EVOLVE! Tu plan está preparado para acompañarte desde cero y adaptarse a cada sesión. ¿Listo para dar el primer paso?",
+    text: "¡Te doy la bienvenida a SOYFIT! Tu plan está preparado para acompañarte desde cero y adaptarse a cada sesión. ¿Listo para dar el primer paso?",
     timestamp: 'Hoy'
   }
 ];
@@ -216,6 +216,13 @@ interface FitnessContextType {
   setIsReassessmentModalOpen: (open: boolean) => void;
   setIsWeeklyReviewOpen: (open: boolean) => void;
   setIsAuthModalOpen: (open: boolean) => void;
+  isAdmin: boolean;
+  isAdminModalOpen: boolean;
+  setIsAdminModalOpen: (open: boolean) => void;
+  isLandingCarouselOpen: boolean;
+  setIsLandingCarouselOpen: (open: boolean) => void;
+  isGoalModalOpen: boolean;
+  setIsGoalModalOpen: (open: boolean) => void;
   logoutUser: () => Promise<void>;
   resetToDemoData: () => void;
 }
@@ -298,6 +305,19 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isReassessmentModalOpen, setIsReassessmentModalOpen] = useState(false);
   const [isWeeklyReviewOpen, setIsWeeklyReviewOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [isLandingCarouselOpen, setIsLandingCarouselOpen] = useState(() => {
+    // Show carousel if not previously dismissed
+    return !localStorage.getItem('SOYFIT_dismissed_carousel');
+  });
+
+  const isAdmin = useMemo(() => {
+    const adminEmail = 'lucas.ferreyra@gmail.com';
+    const currentEmail = (authUser?.email || user?.email || '').toLowerCase().trim();
+    return currentEmail === adminEmail;
+  }, [authUser, user]);
+
   const [currentTab, setCurrentTab] = useState<'home' | 'train' | 'journey' | 'nutrition' | 'profile'>('home');
   const [activeReminder, setActiveReminder] = useState<InAppReminder | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<AppNotificationPermission>(() => getNotificationPermission());
@@ -313,6 +333,12 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
           // 1. Sync or initialize User Profile in Firestore
           const cloudProfile = await fetchUserProfileFromFirestore(currentUser.uid);
           if (cloudProfile) {
+            const nowIso = new Date().toISOString();
+            syncUserProfileToFirestore(currentUser.uid, {
+              ...cloudProfile,
+              lastActiveAt: nowIso
+            }).catch(() => {});
+
             setUser(prev => ({
               ...prev,
               ...cloudProfile,
@@ -320,7 +346,8 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
               name: cloudProfile.name || currentUser.displayName || prev.name,
               email: currentUser.email || cloudProfile.email || prev.email,
               photoURL: currentUser.photoURL || cloudProfile.photoURL,
-              provider: currentUser.providerData?.[0]?.providerId || 'firebase'
+              provider: currentUser.providerData?.[0]?.providerId || 'firebase',
+              lastActiveAt: nowIso
             }));
           } else {
             // New user in Firestore: initialize profile with zeroed baseline
@@ -514,7 +541,10 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const startWorkout = (workoutToStart?: Workout) => {
-    const selected = workoutToStart || todayWorkout;
+    let selected = workoutToStart || todayWorkout;
+    if (!selected || !selected.exercises || selected.exercises.length === 0) {
+      selected = generateTodayWorkout(user, readiness, workoutHistory);
+    }
     setActiveWorkout(selected);
   };
 
@@ -1064,6 +1094,13 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setIsReassessmentModalOpen,
       setIsWeeklyReviewOpen,
       setIsAuthModalOpen,
+      isAdmin,
+      isAdminModalOpen,
+      setIsAdminModalOpen,
+      isLandingCarouselOpen,
+      setIsLandingCarouselOpen,
+      isGoalModalOpen,
+      setIsGoalModalOpen,
       logoutUser,
       resetToDemoData
     }}>
