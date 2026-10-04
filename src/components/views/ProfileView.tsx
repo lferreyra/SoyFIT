@@ -908,8 +908,8 @@ export const ProfileView: React.FC = () => {
             onClick={() => setIsAssessmentModalOpen(true)}
             className="px-4 py-3 rounded-2xl bg-white/90 border border-black/10 text-xs font-bold text-[#20312D] hover:bg-white transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#56B89D]" />
-            <span>Repetir evaluación física</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-[#56B89D]" />
+            <span>Diagnóstico Biomecánico & Dolencias</span>
           </button>
 
           <button

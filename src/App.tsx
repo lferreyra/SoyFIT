@@ -18,7 +18,7 @@ import { TrainView } from './components/views/TrainView';
 import { JourneyView } from './components/views/JourneyView';
 import { NutritionView } from './components/views/NutritionView';
 import { ProfileView } from './components/views/ProfileView';
-import { OnboardingModal } from './components/modals/OnboardingModal';
+import { BiomechanicalCalibrationModal } from './components/modals/BiomechanicalCalibrationModal';
 import { AssessmentModal } from './components/modals/AssessmentModal';
 import { ActiveWorkoutModal } from './components/modals/ActiveWorkoutModal';
 import { AICoachModal } from './components/modals/AICoachModal';
@@ -77,8 +77,7 @@ const AppContent: React.FC = () => {
       </div>
 
       {/* Global Modals & Runners */}
-      <OnboardingModal />
-      <AssessmentModal 
+      <BiomechanicalCalibrationModal 
         isOpen={isAssessmentModalOpen} 
         onClose={() => setIsAssessmentModalOpen(false)} 
       />

@@ -9,7 +9,9 @@ import {
   CheckCircle2, 
   X,
   ShieldCheck,
-  Target
+  Target,
+  ChevronDown,
+  AlertTriangle
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { GlassCard, GlassPill } from '../common/GlassCard';
@@ -25,10 +27,12 @@ export const TrainView: React.FC = () => {
     launchQuickWorkout, 
     generateCustomSession, 
     program,
-    setIsGoalModalOpen
+    setIsGoalModalOpen,
+    setIsAssessmentModalOpen
   } = useFitness();
 
   // Custom Workout Generator State
+  const [showExerciseListInline, setShowExerciseListInline] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const [customGoal, setCustomGoal] = useState('strength');
   const [customDuration, setCustomDuration] = useState(25);
@@ -128,6 +132,19 @@ export const TrainView: React.FC = () => {
                 <Target className="w-3 h-3 text-[#56B89D]" />
                 <span className="capitalize">{user.primaryGoal ? user.primaryGoal.replace(/_/g, ' ') : 'Fuerza'}</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setIsAssessmentModalOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E9A06D]/15 hover:bg-[#E9A06D]/25 text-[10px] font-extrabold text-[#20312D] transition-colors cursor-pointer"
+                title="Calibrar por dolor o molestia articular"
+              >
+                <ShieldCheck className="w-3 h-3 text-[#E9A06D]" />
+                <span>
+                  {user.limitations && !user.limitations.includes('none') && user.limitations.length > 0
+                    ? `Articulaciones protegidas (${user.limitations.length})`
+                    : 'Calibrar dolencias'}
+                </span>
+              </button>
             </div>
             <h2 className="text-2xl font-black text-[#20312D] tracking-tight">
               {todayWorkout.title}
@@ -150,14 +167,86 @@ export const TrainView: React.FC = () => {
             </div>
           </div>
 
-          <button
-            onClick={() => startWorkout(todayWorkout)}
-            className="self-start sm:self-center px-6 py-4 rounded-2xl bg-[#20312D] hover:bg-black text-white font-extrabold text-sm shadow-md transition-all flex items-center gap-2.5 shrink-0 cursor-pointer"
-          >
-            <Play className="w-4 h-4 fill-current text-[#56B89D]" />
-            <span>{t('train.startSession')}</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowExerciseListInline(!showExerciseListInline)}
+              className="px-4 py-3.5 rounded-2xl bg-white border border-black/10 text-xs font-bold text-[#20312D] hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <span>{showExerciseListInline ? 'Ocultar ejercicios' : 'Ver ejercicios'}</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showExerciseListInline ? 'rotate-180' : ''}`} />
+            </button>
+            <button
+              onClick={() => startWorkout(todayWorkout)}
+              className="px-6 py-3.5 rounded-2xl bg-[#20312D] hover:bg-black text-white font-extrabold text-sm shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+            >
+              <Play className="w-4 h-4 fill-current text-[#56B89D]" />
+              <span>{t('train.startSession')}</span>
+            </button>
+          </div>
         </div>
+
+        {/* INLINE EXERCISE LIST & INSTRUCTIONS */}
+        {showExerciseListInline && (
+          <div className="mt-6 pt-6 border-t border-black/5 space-y-4 animate-in fade-in duration-200">
+            {/* Biomechanical Protection status */}
+            {user?.limitations && !user.limitations.includes('none') && user.limitations.length > 0 && (
+              <div className="bg-[#EBF5F1] border border-[#56B89D]/40 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs">
+                <ShieldCheck className="w-4 h-4 text-[#3A8E77] shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-black text-[#20312D]">
+                    {user.limitations.includes('back')
+                      ? 'Filtro Lumbar Activo (Protocolo Stuart McGill)'
+                      : `Filtro Articular Activo (${user.limitations.join(', ')})`}
+                  </span>
+                  <p className="text-[#6F7D78] mt-0.5 leading-relaxed">
+                    {user.limitations.includes('back')
+                      ? 'Se han eliminado los ejercicios con flexión lumbar bajo peso o compresión axial. Todos los movimientos protegen tu espalda baja.'
+                      : 'Ejercicios adaptados para proteger tus zonas sensibles.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {todayWorkout.exercises.map((ex, idx) => {
+                const full = EXERCISE_LIBRARY.find(item => item.id === ex.exerciseId);
+                const instructionText = full?.instructions?.[0] || 'Realizá el movimiento con postura neutra y respiración rítmica.';
+                const tipText = ex.notes || full?.safetyNotes || full?.instructions?.[1] || 'Mantené la técnica estricta y controlada.';
+
+                return (
+                  <div
+                    key={ex.exerciseId + idx}
+                    className="bg-[#1C2623] text-white rounded-2xl p-4 shadow-xs border border-white/10 space-y-2.5"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-[#E9A06D] text-[#1C2623] font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-black text-white">
+                          {ex.exerciseName}
+                        </h4>
+                        <span className="text-[11px] font-bold text-[#E9A06D] block">
+                          {ex.targetSets} x {ex.targetReps ? `${ex.targetReps} reps` : `${ex.targetDurationSeconds}s`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-300 leading-relaxed pl-10">
+                      {instructionText}
+                    </p>
+
+                    <div className="ml-10 bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-start gap-2 text-xs text-[#DCEFE8]">
+                      <span className="text-sm shrink-0">💡</span>
+                      <span className="leading-relaxed">{tipText}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </GlassCard>
 
       {/* WORKOUT GENERATOR & QUICK OPTIONS */}

@@ -89,3 +89,28 @@ export function playWorkoutChime() {
     console.debug('Audio notification omitted or not allowed:', err);
   }
 }
+
+/**
+ * Play a short, crisp sports timer beep for automatic interval transitions
+ */
+export function playTransitionBeep(isHigh = false) {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(isHigh ? 1320 : 880, now);
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.18);
+  } catch (err) {
+    console.debug('Beep omitted:', err);
+  }
+}

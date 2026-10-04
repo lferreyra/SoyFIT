@@ -11,23 +11,72 @@ import {
   Info, 
   ShieldAlert, 
   ChevronRight,
+  ChevronDown,
   Sparkles,
-  Trophy
+  Trophy,
+  Dumbbell,
+  ShieldCheck,
+  AlertTriangle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useFitness } from '../../context/FitnessContext';
 import { getExerciseById } from '../../services/adaptiveEngine';
-import { WorkoutFeedbackRating, PostWorkoutFeeling } from '../../types/fitness';
+import { WorkoutFeedbackRating, PostWorkoutFeeling, PhysicalLimitation } from '../../types/fitness';
 import { CATEGORY_LABELS_ES } from '../../i18n';
+import { RestRecoveryClock } from '../workout/RestRecoveryClock';
+import { ExerciseProgressClock } from '../workout/ExerciseProgressClock';
+import { playTransitionBeep } from '../../services/reminderSound';
+
+const AILMENT_OPTIONS: { id: PhysicalLimitation; label: string; icon: string; desc: string }[] = [
+  { id: 'back', label: 'Zona Lumbar / Espalda baja', icon: '🛡️', desc: 'Protocolo Stuart McGill: discos protegidos y neutralidad espinal.' },
+  { id: 'knee', label: 'Rodillas / Articulaciones', icon: '🦵', desc: 'Sin impacto axial; sentadilla a cajón o puente de glúteos.' },
+  { id: 'shoulder', label: 'Hombros / Manguito rotador', icon: '🦾', desc: 'Empujes a 45° cerrados y protección subacromial.' },
+  { id: 'neck', label: 'Cuello / Cervicales', icon: '🧣', desc: 'Sin flexión forzada ni tracción en trapecios.' },
+  { id: 'wrist', label: 'Muñecas / Codos', icon: '🖐️', desc: 'Apoyo neutro en puños o banco sin hiperextensión.' },
+  { id: 'hip', label: 'Caderas / Tobillos', icon: '🦶', desc: 'Ajuste de profundidad y dorsiflexión controlada.' },
+  { id: 'none', label: 'Sin dolor (100% operativo)', icon: '✨', desc: 'Entrenamiento completo sin restricciones articulares.' },
+];
+
+const WARMUP_STEPS = [
+  {
+    number: 1,
+    name: 'Gato-Camello fluido (Cat-Cow)',
+    desc: '8 a 10 ciclos lentos para lubricar discos espinales y descomprimir columna.',
+    duration: '45s',
+    imageUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    number: 2,
+    name: 'Puente de glúteos suave',
+    desc: '8 reps con pausa de 1 segundo arriba para despertar glúteos y quitar sobrecarga lumbar.',
+    duration: '45s',
+    imageUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    number: 3,
+    name: 'Rotación torácica y respiración diafragmática',
+    desc: '5 por lado con apertura de pecho y movilidad escapular controlada.',
+    duration: '45s',
+    imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80'
+  }
+];
 
 export const ActiveWorkoutModal: React.FC = () => {
   const { 
+    user,
     activeWorkout, 
     cancelActiveWorkout, 
     finishActiveWorkout, 
     replaceExerciseInActiveWorkout,
-    gamification 
+    recalibrateWorkoutWithLimitations,
+    gamification,
+    setIsAssessmentModalOpen
   } = useFitness();
+
+  const [isPreviewStage, setIsPreviewStage] = useState(true);
+  const [isAilmentsAccordionOpen, setIsAilmentsAccordionOpen] = useState(false);
+  const [ailmentFeedback, setAilmentFeedback] = useState<string | null>(null);
+  const [isWarmupExpanded, setIsWarmupExpanded] = useState(true);
 
   const [currentExIndex, setCurrentExIndex] = useState(0);
   const [currentSet, setCurrentSet] = useState(1);
@@ -37,6 +86,7 @@ export const ActiveWorkoutModal: React.FC = () => {
   // Interval timer for timed exercises or rest countdown
   const [isResting, setIsResting] = useState(false);
   const [restSecondsLeft, setRestSecondsLeft] = useState(45);
+  const [totalRestSeconds, setTotalRestSeconds] = useState(45);
   const [timerExerciseSeconds, setTimerExerciseSeconds] = useState(0);
 
   // Replacement modal within workout
@@ -51,6 +101,8 @@ export const ActiveWorkoutModal: React.FC = () => {
   // Reset all session state whenever a new workout is loaded or started
   useEffect(() => {
     if (activeWorkout) {
+      setIsPreviewStage(true);
+      setIsWarmupExpanded(true);
       setCurrentExIndex(0);
       setCurrentSet(1);
       setElapsedTotalSeconds(0);
@@ -60,6 +112,8 @@ export const ActiveWorkoutModal: React.FC = () => {
       setTimerExerciseSeconds(0);
       setSelectedFeedback('perfect');
       setSelectedFeeling('great');
+      setTotalRestSeconds(45);
+      setRestSecondsLeft(45);
     }
   }, [activeWorkout?.id]);
 
@@ -71,21 +125,24 @@ export const ActiveWorkoutModal: React.FC = () => {
 
   // Global workout elapsed timer
   useEffect(() => {
-    if (!activeWorkout || isCompletionScreen || isPaused) return;
+    if (!activeWorkout || isCompletionScreen || isPaused || isPreviewStage) return;
     const interval = setInterval(() => {
       setElapsedTotalSeconds(prev => prev + 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [activeWorkout, isCompletionScreen, isPaused]);
+  }, [activeWorkout, isCompletionScreen, isPaused, isPreviewStage]);
 
-  // Rest countdown timer
+  // Rest countdown timer: auto-advances when reaching 0 without button presses
   useEffect(() => {
     let interval: any = null;
-    if (activeWorkout && isResting && !isPaused) {
+    if (activeWorkout && isResting && !isPaused && !isPreviewStage) {
       interval = setInterval(() => {
         setRestSecondsLeft(prev => {
           if (prev <= 1) {
+            // Rest finished! Auto-start next set or exercise immediately
             setIsResting(false);
+            setTimerExerciseSeconds(0);
+            try { playTransitionBeep(false); } catch {}
             return 0;
           }
           return prev - 1;
@@ -93,17 +150,22 @@ export const ActiveWorkoutModal: React.FC = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [activeWorkout, isResting, isPaused]);
+  }, [activeWorkout, isResting, isPaused, isPreviewStage]);
 
-  // Timed exercise countdown
+  // Exercise countdown timer: runs automatically for timed exercises AND rep-based sets
   useEffect(() => {
     let interval: any = null;
-    if (activeWorkout && isTimedExercise && !isResting && !isPaused && !isCompletionScreen && currentExercise) {
+    if (activeWorkout && !isResting && !isPaused && !isCompletionScreen && !isPreviewStage && currentExercise) {
       interval = setInterval(() => {
         setTimerExerciseSeconds(prev => {
-          const target = currentExercise.targetDurationSeconds || 30;
-          if (prev >= target) {
+          const target = isTimedExercise
+            ? (currentExercise.targetDurationSeconds || 30)
+            : Math.max(20, Math.min(60, (currentExercise.targetReps || 10) * 3));
+
+          if (prev + 1 >= target) {
+            // Auto-advance set to rest countdown!
             handleCompleteSet();
+            try { playTransitionBeep(true); } catch {}
             return 0;
           }
           return prev + 1;
@@ -111,17 +173,55 @@ export const ActiveWorkoutModal: React.FC = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [activeWorkout, isTimedExercise, isResting, isPaused, isCompletionScreen, currentExIndex, currentSet, currentExercise]);
+  }, [activeWorkout, isTimedExercise, isResting, isPaused, isCompletionScreen, isPreviewStage, currentExIndex, currentSet, currentExercise]);
 
   if (!activeWorkout || !activeWorkout.exercises || activeWorkout.exercises.length === 0 || !currentExercise) {
     return null;
   }
 
+  const handleAdjustRestTime = (deltaSeconds: number) => {
+    setRestSecondsLeft(prev => {
+      const nextVal = Math.max(0, prev + deltaSeconds);
+      if (nextVal === 0) {
+        setIsResting(false);
+        return 0;
+      }
+      return nextVal;
+    });
+    if (deltaSeconds > 0) {
+      setTotalRestSeconds(prev => Math.max(prev, restSecondsLeft + deltaSeconds));
+    }
+  };
+
+  const handleToggleAilment = (id: PhysicalLimitation) => {
+    const currentLimits: PhysicalLimitation[] = user?.limitations || ['none'];
+    let newLimits: PhysicalLimitation[] = [];
+    if (id === 'none') {
+      newLimits = ['none'];
+    } else {
+      const withoutNone = currentLimits.filter(l => l !== 'none');
+      if (withoutNone.includes(id)) {
+        newLimits = withoutNone.filter(l => l !== id);
+        if (newLimits.length === 0) newLimits = ['none'];
+      } else {
+        newLimits = [...withoutNone, id];
+      }
+    }
+    recalibrateWorkoutWithLimitations(newLimits);
+    const names = newLimits.includes('none')
+      ? 'Modo estándar (sin restricciones)'
+      : newLimits.map(l => AILMENT_OPTIONS.find(o => o.id === l)?.label || l).join(', ');
+    setAilmentFeedback(`🛡️ Plan calibrado: protección activa para ${names}`);
+    setTimeout(() => setAilmentFeedback(null), 4000);
+  };
+
   const handleCompleteSet = () => {
     if (currentSet < currentExercise.targetSets) {
       setCurrentSet(prev => prev + 1);
       setTimerExerciseSeconds(0);
-      setRestSecondsLeft(currentExercise.restSeconds || 45);
+      const rest = currentExercise.restSeconds || 45;
+      setTotalRestSeconds(rest);
+      setRestSecondsLeft(rest);
       setIsResting(true);
     } else {
       // Completed all sets for this exercise
@@ -129,7 +229,10 @@ export const ActiveWorkoutModal: React.FC = () => {
         setCurrentExIndex(prev => prev + 1);
         setCurrentSet(1);
         setTimerExerciseSeconds(0);
-        setRestSecondsLeft(currentExercise.restSeconds || 45);
+        const nextEx = activeWorkout.exercises[currentExIndex + 1];
+        const rest = nextEx?.restSeconds || currentExercise.restSeconds || 45;
+        setTotalRestSeconds(rest);
+        setRestSecondsLeft(rest);
         setIsResting(true);
       } else {
         // Finished whole workout!
@@ -189,10 +292,14 @@ export const ActiveWorkoutModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xl overflow-y-auto">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xl ${isPreviewStage || isCompletionScreen ? 'overflow-y-auto' : 'overflow-hidden'}`}>
       <div 
         id="active-workout-runner"
-        className="relative w-full max-w-2xl bg-[#F4F3EC] border border-white/80 rounded-[36px] p-6 sm:p-8 shadow-2xl my-auto text-[#20312D] overflow-hidden"
+        className={`relative w-full ${
+          isPreviewStage || isCompletionScreen
+            ? 'max-w-xl bg-[#F4F3EC] border border-white/80 rounded-[32px] p-4 sm:p-6 shadow-2xl my-auto text-[#20312D] overflow-hidden max-h-[92vh] flex flex-col justify-between'
+            : 'max-w-md bg-[#121B18] border border-white/15 rounded-[28px] p-3 sm:p-4 shadow-2xl my-auto text-white overflow-hidden max-h-[96vh] flex flex-col justify-between select-none'
+        }`}
       >
         {/* Replacement Notice Alert */}
         {replaceNotice && (
@@ -310,150 +417,349 @@ export const ActiveWorkoutModal: React.FC = () => {
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+        ) : isPreviewStage ? (
+          /* PRE-WORKOUT PREVIEW & EXERCISE INSTRUCTION LIST */
+          <div className="space-y-4 animate-in fade-in duration-200">
+            {/* Top Bar: Title, Stats & Close */}
+            <div className="flex items-start justify-between gap-3 text-left">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#56B89D] block">
+                  Vista Previa de la Sesión
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-[#20312D] tracking-tight mt-0.5">
+                  {activeWorkout.title}
+                </h2>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-[#6F7D78] font-bold">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#56B89D]" />
+                    <span>{activeWorkout.estimatedDurationMinutes} min</span>
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Dumbbell className="w-3.5 h-3.5 text-[#56B89D]" />
+                    <span>{totalExercises} ejercicios</span>
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Flame className="w-3.5 h-3.5 text-[#E9A06D]" />
+                    <span>~{activeWorkout.estimatedCalories} kcal</span>
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={cancelActiveWorkout}
+                className="w-9 h-9 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-[#6F7D78] hover:text-[#20312D] transition-colors cursor-pointer shrink-0 border border-black/5"
+                title="Cerrar y volver"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Scrollable container for preview items */}
+            <div className="max-h-[62vh] overflow-y-auto pr-1 space-y-4 text-left">
+              {/* FEEDBACK TOAST IF AILMENT WAS TOGGLED */}
+              {ailmentFeedback && (
+                <div className="bg-[#EBF5F1] border border-[#56B89D] text-[#20312D] rounded-2xl p-3 text-xs font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
+                  <ShieldCheck className="w-4 h-4 text-[#3A8E77] shrink-0" />
+                  <span>{ailmentFeedback}</span>
+                </div>
+              )}
+
+              {/* 1) ACORDEÓN DESPLEGABLE DE DOLENCIAS (Antes de la entrada en calor) */}
+              <div className="bg-white/90 border border-black/10 rounded-3xl p-4 shadow-sm space-y-3 transition-all">
+                <button
+                  type="button"
+                  onClick={() => setIsAilmentsAccordionOpen(!isAilmentsAccordionOpen)}
+                  className="w-full flex items-center justify-between text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0 pr-2">
+                    <div className="w-9 h-9 rounded-2xl bg-[#EBF5F1] text-[#3A8E77] flex items-center justify-center shrink-0 border border-[#56B89D]/30">
+                      <ShieldCheck className="w-5 h-5 text-[#3A8E77]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#3A8E77] bg-[#DCEFE8] px-2 py-0.5 rounded-full">
+                          Calibración Articular
+                        </span>
+                        {user?.limitations && !user.limitations.includes('none') && user.limitations.length > 0 ? (
+                          <span className="text-[10px] font-extrabold text-[#E9A06D] truncate">
+                            {user.limitations.length} {user.limitations.length === 1 ? 'zona protegida' : 'zonas protegidas'}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-gray-500">Sin molestias</span>
+                        )}
+                      </div>
+                      <h3 className="text-sm sm:text-base font-black text-[#20312D] mt-0.5 truncate">
+                        ¿Sentís alguna molestia o dolor hoy?
+                      </h3>
+                    </div>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-[#6F7D78] shrink-0 transition-transform duration-200 ${isAilmentsAccordionOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isAilmentsAccordionOpen && (
+                  <div className="pt-2 border-t border-black/5 space-y-2 animate-in fade-in duration-200">
+                    <p className="text-[11px] text-[#6F7D78]">
+                      Tocá una zona para protegerla inmediatamente. Adaptamos los ejercicios en tiempo real para evitar dolor y cuidar tu salud:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      {AILMENT_OPTIONS.map(opt => {
+                        const isSelected = opt.id === 'none'
+                          ? (!user?.limitations || user.limitations.includes('none') || user.limitations.length === 0)
+                          : (user?.limitations?.includes(opt.id));
+
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => handleToggleAilment(opt.id)}
+                            className={`p-2.5 rounded-2xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#20312D] text-white border-[#20312D] shadow-xs'
+                                : 'bg-white/70 hover:bg-white text-[#20312D] border-black/5'
+                            }`}
+                          >
+                            <span className="text-lg shrink-0 mt-0.5">{opt.icon}</span>
+                            <div className="min-w-0 flex-1">
+                              <span className={`text-xs font-black block truncate ${isSelected ? 'text-white' : 'text-[#20312D]'}`}>
+                                {opt.label}
+                              </span>
+                              <span className={`text-[10px] block leading-tight mt-0.5 ${isSelected ? 'text-[#DCEFE8]' : 'text-[#6F7D78]'}`}>
+                                {opt.desc}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 2) ENTRADA EN CALOR COLAPSABLE CON IMÁGENES EN DEGRADÉ OSCURO (Ajustadas a la sección) */}
+              <div className="bg-[#241A1C] text-white rounded-3xl p-4 shadow-sm border border-red-500/20 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setIsWarmupExpanded(!isWarmupExpanded)}
+                  className="w-full flex items-center justify-between text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-2xl bg-red-500/20 text-[#E9A06D] flex items-center justify-center shrink-0 border border-red-500/30">
+                      <AlertTriangle className="w-5 h-5 text-[#E9A06D]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black tracking-widest text-[#E9A06D] uppercase">
+                          OBLIGATORIO
+                        </span>
+                        <span className="text-[11px] text-gray-400 font-semibold">• 2 a 3 min</span>
+                      </div>
+                      <h3 className="text-base font-black text-white mt-0.5">
+                        Entrada en calor previa
+                      </h3>
+                    </div>
+                  </div>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isWarmupExpanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isWarmupExpanded && (
+                  <div className="pt-2 border-t border-white/10 space-y-2.5 animate-in fade-in duration-200">
+                    {WARMUP_STEPS.map(step => (
+                      <div
+                        key={step.number}
+                        className="relative h-20 sm:h-22 rounded-2xl overflow-hidden border border-white/10 shadow-sm flex items-center"
+                      >
+                        {/* Imagen ilustrativa de fondo que se ajusta exactamente al tamaño de la sección */}
+                        <img
+                          src={step.imageUrl}
+                          alt={step.name}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                        {/* Degradado oscuro para máxima legibilidad de letras blancas o claras */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/92 via-black/75 to-black/45 p-3.5 flex items-center justify-between text-white z-10">
+                          <div className="flex items-center gap-3 min-w-0 pr-2">
+                            <div className="w-7 h-7 rounded-full bg-[#E9A06D] text-[#1C2623] font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                              {step.number}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-extrabold text-sm text-white tracking-tight drop-shadow-xs truncate">
+                                {step.name}
+                              </h4>
+                              <p className="text-[11px] text-gray-200 mt-0.5 line-clamp-1 drop-shadow-xs">
+                                {step.desc}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-[11px] font-mono font-bold text-[#DCEFE8] bg-white/15 px-2.5 py-1 rounded-lg shrink-0 border border-white/15">
+                            {step.duration}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 3) LISTADO SIMPLE DE LOS EJERCICIOS A REALIZAR (Sin explicaciones largas aquí) */}
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base sm:text-lg font-black text-[#20312D] tracking-tight">
+                    Ejercicios de la sesión
+                  </h3>
+                  <span className="text-xs text-[#6F7D78] font-bold">
+                    {totalExercises} movimientos pautados
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {activeWorkout.exercises.map((ex, idx) => {
+                    const full = getExerciseById(ex.exerciseId);
+
+                    return (
+                      <div
+                        key={ex.exerciseId + idx}
+                        className="bg-white/90 border border-black/5 hover:border-black/10 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-xs transition-all"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {/* Number Badge */}
+                          <div className="w-7 h-7 rounded-full bg-[#E9A06D] text-[#1C2623] font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                            {idx + 1}
+                          </div>
+
+                          {/* Exercise Thumbnail image adjusted to section */}
+                          <div className="w-12 h-12 rounded-xl overflow-hidden relative shrink-0 border border-black/5">
+                            <img
+                              src={full?.imageUrl || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80'}
+                              alt={ex.exerciseName}
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+
+                          {/* Title & Sets */}
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-black text-[#20312D] truncate">
+                              {ex.exerciseName}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-0.5 text-xs text-[#6F7D78] font-semibold">
+                              <span className="text-[#3A8E77] font-bold">
+                                {ex.targetSets} {ex.targetSets === 1 ? 'serie' : 'series'} × {ex.targetReps ? `${ex.targetReps} reps` : `${ex.targetDurationSeconds}s`}
+                              </span>
+                              <span>•</span>
+                              <span>Descanso: {ex.restSeconds || 45}s</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Protection Badge if adapted */}
+                        {ex.notes && (
+                          <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#EBF5F1] text-[#3A8E77] text-[10px] font-extrabold border border-[#56B89D]/20 shrink-0">
+                            <ShieldCheck className="w-3 h-3" />
+                            <span>Adaptado</span>
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Primary Action Button: Start Workout */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setIsPreviewStage(false)}
+                className="w-full py-4 px-6 rounded-2xl bg-[#20312D] hover:bg-black text-white font-black text-sm sm:text-base shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer active:scale-[0.99]"
+              >
+                <Play className="w-5 h-5 text-[#56B89D] fill-[#56B89D]" />
+                <span>Comenzar entrenamiento</span>
+              </button>
+            </div>
+          </div>
         ) : (
           /* ACTIVE DISTRACTION-FREE RUNNER */
-          <div className="space-y-5">
-            {/* Top Bar: Progress, Elapsed time, and Exit */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-extrabold text-[#56B89D] uppercase tracking-wider block">
-                  Ejercicio {currentExIndex + 1} de {totalExercises}
+          <div className="space-y-2.5">
+            {/* Top Bar: Compact header with iconography */}
+            <div className="flex items-center justify-between pb-0.5">
+              <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                <span className="text-[11px] font-black text-[#56B89D] uppercase tracking-wider font-mono">
+                  {currentExIndex + 1}/{totalExercises}
                 </span>
-                <h3 className="text-sm font-bold text-[#6F7D78] truncate max-w-xs">
+                <span className="text-gray-500">•</span>
+                <h3 className="text-xs font-bold text-gray-300 truncate max-w-[140px] sm:max-w-[200px]">
                   {activeWorkout.title}
                 </h3>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 border border-white text-xs font-mono font-bold text-[#20312D]">
-                  <Clock className="w-3.5 h-3.5 text-[#56B89D]" />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-mono font-bold text-white">
+                  <Clock className="w-3 h-3 text-[#56B89D]" />
                   <span>{formatTime(elapsedTotalSeconds)}</span>
                 </div>
                 <button
-                  onClick={handleClose}
-                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-[#6F7D78] hover:text-[#20312D] cursor-pointer transition-colors"
-                  title="Salir del entrenamiento"
+                  type="button"
+                  onClick={() => setIsPreviewStage(true)}
+                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer border border-white/10"
+                  title="Ver lista de ejercicios"
                 >
-                  <X className="w-4 h-4" />
+                  <Info className="w-3.5 h-3.5 text-[#56B89D]" />
                 </button>
-              </div>
-            </div>
-
-            {/* Exercise Visual Card */}
-            <div className="relative h-48 sm:h-56 rounded-3xl overflow-hidden border border-white/80 shadow-md">
-              <img 
-                src={fullExerciseData?.imageUrl || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80'} 
-                alt={currentExercise.exerciseName}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
-                <span className="text-[10px] font-bold tracking-widest uppercase text-[#DCEFE8]">
-                  {CATEGORY_LABELS_ES[currentExercise.category] || currentExercise.category} • Etapa {fullExerciseData?.progressionLevel || 1}
-                </span>
-                <h2 className="text-2xl font-black tracking-tight drop-shadow-sm">
-                  {currentExercise.exerciseName}
-                </h2>
-              </div>
-            </div>
-
-            {/* REST STATE OVERLAY OR ACTIVE TARGET DISPLAY */}
-            {isResting ? (
-              <div className="bg-[#DCEFE8]/90 border border-white rounded-3xl p-6 text-center space-y-3 animate-in fade-in">
-                <span className="text-xs font-bold text-[#20312D] uppercase tracking-widest">
-                  Descanso y recuperación
-                </span>
-                <div className="text-6xl font-black font-mono text-[#20312D]">
-                  {restSecondsLeft}s
-                </div>
-                <p className="text-xs text-[#6F7D78]">
-                  Respirá profundo y controlado. Siguiente: Serie {currentSet} de {currentExercise.targetSets}
-                </p>
                 <button
-                  onClick={() => setIsResting(false)}
-                  className="px-6 py-2 rounded-full bg-[#20312D] text-white text-xs font-bold hover:bg-black transition-colors cursor-pointer"
+                  onClick={handleClose}
+                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer border border-white/10"
+                  title="Salir"
                 >
-                  Omitir descanso
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-            ) : (
-              <div className="bg-white/80 border border-white rounded-3xl p-6 text-center space-y-3 shadow-xs">
-                {/* Sets Pill */}
-                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/5 text-xs font-extrabold text-[#20312D]">
-                  SERIE {currentSet} DE {currentExercise.targetSets}
-                </div>
-
-                {/* Big Target Metric */}
-                {isTimedExercise ? (
-                  <div>
-                    <div className="text-6xl font-black font-mono text-[#20312D] tracking-tight">
-                      {(currentExercise.targetDurationSeconds || 30) - timerExerciseSeconds}
-                      <span className="text-xl font-normal text-[#6F7D78] ml-1">seg</span>
-                    </div>
-                    <span className="text-xs text-[#6F7D78] font-semibold">Mantené la tensión constante</span>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="text-6xl font-black text-[#20312D] tracking-tight">
-                      {currentExercise.targetReps}
-                      <span className="text-xl font-bold text-[#6F7D78] ml-1.5 uppercase">Reps</span>
-                    </div>
-                    <span className="text-xs text-[#6F7D78] font-semibold">Ritmo controlado y técnica prolija</span>
-                  </div>
-                )}
-
-                {/* Coaching cue */}
-                {currentExercise.notes && (
-                  <div className="text-xs text-[#6F7D78] italic pt-1 max-w-md mx-auto">
-                    💡 "{currentExercise.notes}"
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* CONTROLS */}
-            <div className="grid grid-cols-3 gap-2.5 pt-1">
-              <button
-                type="button"
-                onClick={() => setIsReplaceModalOpen(true)}
-                className="flex flex-col items-center justify-center py-3 rounded-2xl bg-white/80 border border-black/5 text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:bg-white transition-all cursor-pointer"
-              >
-                <RefreshCw className="w-4 h-4 mb-1 text-[#56B89D]" />
-                <span>Cambiar</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsPaused(!isPaused)}
-                className="flex flex-col items-center justify-center py-3 rounded-2xl bg-white/80 border border-black/5 text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:bg-white transition-all cursor-pointer"
-              >
-                {isPaused ? <Play className="w-4 h-4 mb-1 text-[#E9A06D]" /> : <Pause className="w-4 h-4 mb-1 text-[#6F7D78]" />}
-                <span>{isPaused ? 'Reanudar' : 'Pausar'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSkipExercise}
-                className="flex flex-col items-center justify-center py-3 rounded-2xl bg-white/80 border border-black/5 text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:bg-white transition-all cursor-pointer"
-              >
-                <SkipForward className="w-4 h-4 mb-1 text-[#6F7D78]" />
-                <span>Saltear</span>
-              </button>
             </div>
 
-            {/* PRIMARY ACTION: COMPLETE SET */}
-            <button
-              onClick={handleCompleteSet}
-              className="w-full py-4 rounded-2xl bg-[#20312D] hover:bg-black text-white font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Check className="w-5 h-5 text-[#56B89D]" />
-              <span>
-                {currentSet < currentExercise.targetSets 
-                  ? `Completar serie ${currentSet}` 
-                  : currentExIndex < totalExercises - 1 ? 'Siguiente ejercicio' : 'Terminar entrenamiento'
+            {/* REST STATE OVERLAY OR ACTIVE EXERCISE CLOCK */}
+            {isResting ? (
+              <RestRecoveryClock
+                restSecondsLeft={restSecondsLeft}
+                totalRestSeconds={totalRestSeconds}
+                currentSet={currentSet}
+                targetSets={currentExercise.targetSets}
+                nextExerciseName={
+                  currentSet < currentExercise.targetSets 
+                    ? currentExercise.exerciseName 
+                    : currentExIndex < totalExercises - 1 
+                      ? activeWorkout.exercises[currentExIndex + 1]?.exerciseName 
+                      : 'Último ejercicio completado'
                 }
-              </span>
-            </button>
+                nextTargetReps={currentSet < currentExercise.targetSets ? currentExercise.targetReps : activeWorkout.exercises[currentExIndex + 1]?.targetReps}
+                nextTargetDuration={currentSet < currentExercise.targetSets ? currentExercise.targetDurationSeconds : activeWorkout.exercises[currentExIndex + 1]?.targetDurationSeconds}
+                nextExerciseNotes={currentSet < currentExercise.targetSets ? currentExercise.notes : activeWorkout.exercises[currentExIndex + 1]?.notes}
+                isPaused={isPaused}
+                onTogglePause={() => setIsPaused(prev => !prev)}
+                onSkipRest={() => setIsResting(false)}
+                onAdjustTime={handleAdjustRestTime}
+              />
+            ) : (
+              <ExerciseProgressClock
+                exerciseName={currentExercise.exerciseName}
+                category={CATEGORY_LABELS_ES[currentExercise.category] || currentExercise.category}
+                currentSet={currentSet}
+                targetSets={currentExercise.targetSets}
+                isTimed={isTimedExercise}
+                targetDurationSeconds={currentExercise.targetDurationSeconds}
+                timerExerciseSeconds={timerExerciseSeconds}
+                targetReps={currentExercise.targetReps}
+                briefInstruction={fullExerciseData?.instructions?.[0]}
+                safetyNote={currentExercise.notes || fullExerciseData?.safetyNotes}
+                imageUrl={fullExerciseData?.imageUrl}
+                isPaused={isPaused}
+                onTogglePause={() => setIsPaused(prev => !prev)}
+                onCompleteSet={handleCompleteSet}
+                onSkipExercise={handleSkipExercise}
+                onOpenReplaceModal={() => setIsReplaceModalOpen(true)}
+              />
+            )}
           </div>
         )}
 

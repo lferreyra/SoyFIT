@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User as UserIcon, AlertCircle, CheckCircle2, ArrowRight, Loader2, Sparkles, Github } from 'lucide-react';
 import { signInWithGoogle, signInWithGithub, signInWithEmail, registerWithEmail, resetPassword } from '../../lib/firebase';
+import { useFitness } from '../../context/FitnessContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const { setIsAssessmentModalOpen } = useFitness();
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,6 +27,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       setErrorMsg(null);
       setInfoMsg(null);
       await signInWithGoogle();
+      setIsAssessmentModalOpen(true);
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: any) {
@@ -47,6 +50,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       setErrorMsg(null);
       setInfoMsg(null);
       await signInWithGithub();
+      setIsAssessmentModalOpen(true);
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: any) {
@@ -101,8 +105,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       setLoading(true);
       if (mode === 'signup') {
         await registerWithEmail(email.trim(), password, displayName.trim() || 'Atleta');
+        setIsAssessmentModalOpen(true);
       } else {
         await signInWithEmail(email.trim(), password);
+        setIsAssessmentModalOpen(true);
       }
       if (onSuccess) onSuccess();
       onClose();

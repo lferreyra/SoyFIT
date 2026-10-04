@@ -47,7 +47,9 @@ export type PhysicalLimitation =
   | 'knee'
   | 'back'
   | 'wrist'
+  | 'neck'
   | 'ankle'
+  | 'hip'
   | 'other';
 
 export type FitnessLevel = 

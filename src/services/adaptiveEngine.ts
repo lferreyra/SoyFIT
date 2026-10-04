@@ -9,7 +9,8 @@ import {
   WorkoutSessionHistory, 
   FourWeekProgram, 
   Exercise, 
-  ExerciseCategory 
+  ExerciseCategory,
+  PhysicalLimitation
 } from '../types/fitness';
 import { EXERCISE_LIBRARY, PROGRESSION_PATHWAYS } from '../data/exerciseLibrary';
 import { formatCalories } from '../i18n';
@@ -240,6 +241,12 @@ export function generateTodayWorkout(
   // Select appropriate exercises
   let selectedExercises: WorkoutExercise[] = [];
 
+  const userLimitations = userProfile?.limitations || [];
+  const hasKneeIssue = userLimitations.includes('knee');
+  const hasBackIssue = userLimitations.includes('back');
+  const hasShoulderIssue = userLimitations.includes('shoulder');
+  const hasWristIssue = userLimitations.includes('wrist');
+
   if (category === 'Mobility') {
     selectedExercises = [
       createWorkoutExercise('mobility-catcow', 2, 10, undefined, 30, 'Enfocate en la respiración lenta'),
@@ -248,22 +255,33 @@ export function generateTodayWorkout(
       createWorkoutExercise('core-deadbug', 2, 8, undefined, 45, 'Mantené la espalda baja bien apoyada')
     ];
   } else if (category === 'Calisthenics') {
+    const pushupEx = hasShoulderIssue ? 'pushup-incline' : 'pushup-incline';
+    const squatEx = hasKneeIssue ? 'squat-chair' : 'squat-air';
+    const coreEx = hasBackIssue ? 'core-birddog' : 'core-plank';
+
     selectedExercises = [
-      createWorkoutExercise('pushup-incline', 3, wasTooEasy ? 12 : 10, undefined, 45, 'Codos a 45 grados'),
-      createWorkoutExercise('squat-air', 3, 15, undefined, 45, 'Profundidad controlada y pecho erguido'),
+      createWorkoutExercise(pushupEx, 3, wasTooEasy ? 12 : 10, undefined, 45, hasShoulderIssue ? 'Protección escapular: Codos cerrados a 45°' : 'Codos a 45 grados'),
+      createWorkoutExercise(squatEx, 3, 15, undefined, 45, hasKneeIssue ? 'Protección rotuliana: Sentadilla a cajón/silla controlada' : 'Profundidad controlada y pecho erguido'),
       createWorkoutExercise('pull-band-row', 3, 12, undefined, 45, 'Juntá escápulas al final de la tracción'),
-      createWorkoutExercise('core-plank', 3, undefined, 40, 45, 'Apretá glúteos y abdomen'),
+      createWorkoutExercise(coreEx, 3, hasBackIssue ? 8 : undefined, hasBackIssue ? undefined : 40, 45, hasBackIssue ? 'Protocolo McGill: Espalda neutral y core firme' : 'Apretá glúteos y abdomen'),
       createWorkoutExercise('glute-bridge', 3, 15, undefined, 45, 'Pausa de 1 segundo arriba')
     ];
   } else {
     // Strength default
+    const squatEx = hasKneeIssue ? 'squat-chair' : 'squat-air';
+    const pushupEx = hasShoulderIssue ? 'pushup-incline' : 'pushup-incline';
+
     selectedExercises = [
-      createWorkoutExercise('squat-air', 3, 12, undefined, 45, 'Ritmo constante y controlado'),
-      createWorkoutExercise('pushup-incline', 3, 10, undefined, 45, 'Bajada en 2 segundos'),
+      createWorkoutExercise(squatEx, 3, 12, undefined, 45, hasKneeIssue ? 'Protección rotuliana: Apoyo en talones y bajada a silla' : 'Ritmo constante y controlado'),
+      createWorkoutExercise(pushupEx, 3, 10, undefined, 45, hasShoulderIssue ? 'Manguito rotador: Codos a 45° y empuje controlado' : hasWristIssue ? 'Apoyo neutro sobre puños para proteger muñecas' : 'Bajada en 2 segundos'),
       createWorkoutExercise('pull-band-row', 3, 12, undefined, 45, 'Tracción firme con espalda recta'),
       createWorkoutExercise('core-birddog', 3, 8, undefined, 30, 'Sostené 2 segundos en extensión'),
       createWorkoutExercise('glute-bridge', 3, 12, undefined, 45, 'Activación total de glúteos')
     ];
+  }
+
+  if (hasBackIssue || hasKneeIssue || hasShoulderIssue || hasWristIssue) {
+    rationale += ' • Ajustado con filtros de protección biomecánica para tus articulaciones.';
   }
 
   const multiplier = intensity === 'Moderate' ? 9.5 : intensity === 'Light' ? 6 : 12;
@@ -286,45 +304,60 @@ export function generateTodayWorkout(
 /**
  * Creates quick time-crunched workouts (5, 10, 15 mins)
  */
-export function generateQuickWorkout(durationMinutes: 5 | 10 | 15): Workout {
+export function generateQuickWorkout(durationMinutes: 5 | 10 | 15, limitations: PhysicalLimitation[] = []): Workout {
   let title = 'Activación rápida de 5 minutos';
   let category: ExerciseCategory = 'Functional';
   let intensity: 'Light' | 'Moderate' | 'High' = 'Light';
   let exercises: WorkoutExercise[] = [];
+
+  const hasBackIssue = limitations.includes('back');
+  const hasKneeIssue = limitations.includes('knee');
+  const hasShoulderIssue = limitations.includes('shoulder');
+
+  const squatEx = (hasBackIssue || hasKneeIssue) ? 'squat-chair' : 'squat-air';
+  const squatNote = hasBackIssue 
+    ? 'Protección lumbar: Sentadilla a silla con tronco erguido' 
+    : hasKneeIssue 
+      ? 'Protección rotuliana: Sentadilla a cajón/silla controlada' 
+      : 'Ritmo dinámico';
 
   if (durationMinutes === 5) {
     title = 'Activación y movilidad express (5 min)';
     category = 'Mobility';
     intensity = 'Light';
     exercises = [
-      createWorkoutExercise('mobility-catcow', 1, 10, undefined, 15, 'Fluidez y respiración'),
-      createWorkoutExercise('squat-air', 1, 12, undefined, 20, 'Activación de piernas'),
-      createWorkoutExercise('mobility-worlds-greatest', 1, 4, undefined, 15, 'Apertura articular')
+      createWorkoutExercise('mobility-catcow', 1, 10, undefined, 15, 'Fluidez y respiración profunda'),
+      createWorkoutExercise(squatEx, 1, 12, undefined, 20, squatNote),
+      createWorkoutExercise('mobility-worlds-greatest', 1, 4, undefined, 15, 'Apertura articular sin forzar')
     ];
   } else if (durationMinutes === 10) {
     title = 'Circuito funcional express (10 min)';
     category = 'Functional';
     intensity = 'Moderate';
     exercises = [
-      createWorkoutExercise('squat-air', 2, 12, undefined, 30, 'Ritmo dinámico'),
-      createWorkoutExercise('pushup-incline', 2, 8, undefined, 30, 'Empuje sólido'),
-      createWorkoutExercise('core-deadbug', 2, 8, undefined, 30, 'Estabilidad de core'),
-      createWorkoutExercise('cardio-marching-knees', 2, undefined, 30, 20, 'Elevación de pulso')
+      createWorkoutExercise(squatEx, 2, 12, undefined, 30, squatNote),
+      createWorkoutExercise('pushup-incline', 2, 8, undefined, 30, hasShoulderIssue ? 'Codos cerrados a 45 grados' : 'Empuje sólido'),
+      createWorkoutExercise('core-deadbug', 2, 8, undefined, 30, 'Espalda baja completamente apoyada en el suelo'),
+      createWorkoutExercise(hasBackIssue ? 'glute-bridge' : 'cardio-marching-knees', 2, hasBackIssue ? 12 : undefined, hasBackIssue ? undefined : 30, 20, hasBackIssue ? 'Puente de glúteos: descarga de zona lumbar' : 'Elevación de pulso')
     ];
   } else {
     title = 'Core dinámico y movilidad (15 min)';
     category = 'Core';
     intensity = 'Moderate';
     exercises = [
-      createWorkoutExercise('core-plank', 2, undefined, 35, 30, 'Tabla rígida'),
-      createWorkoutExercise('squat-air', 2, 15, undefined, 30, 'Tren inferior activo'),
-      createWorkoutExercise('pushup-incline', 2, 10, undefined, 30, 'Empuje controlado'),
+      createWorkoutExercise(hasBackIssue ? 'core-birddog' : 'core-plank', 2, hasBackIssue ? 8 : undefined, hasBackIssue ? undefined : 35, 30, hasBackIssue ? 'Protocolo McGill: Espalda neutral y core firme' : 'Tabla rígida'),
+      createWorkoutExercise(squatEx, 2, 15, undefined, 30, squatNote),
+      createWorkoutExercise('pushup-incline', 2, 10, undefined, 30, hasShoulderIssue ? 'Empuje seguro en plano escapular' : 'Empuje controlado'),
       createWorkoutExercise('mobility-9090-hips', 2, 6, undefined, 30, 'Rotación de caderas'),
-      createWorkoutExercise('cardio-mountain-climbers', 2, undefined, 25, 30, 'Cierre con energía')
+      createWorkoutExercise(hasBackIssue ? 'glute-bridge' : 'cardio-mountain-climbers', 2, hasBackIssue ? 12 : undefined, hasBackIssue ? undefined : 25, 30, hasBackIssue ? 'Activación de glúteos sin compresión axial' : 'Cierre con energía')
     ];
   }
 
   const estimatedCalories = Math.round(durationMinutes * 9.5);
+  let rationale = `Secuencia optimizada para generar el máximo beneficio funcional en un bloque exacto de ${durationMinutes} minutos.`;
+  if (hasBackIssue || hasKneeIssue || hasShoulderIssue) {
+    rationale += ' • Adaptada con filtros articulares seguros para tu cuerpo.';
+  }
 
   return {
     id: `quick-${durationMinutes}-${Date.now()}`,
@@ -334,7 +367,7 @@ export function generateQuickWorkout(durationMinutes: 5 | 10 | 15): Workout {
     estimatedDurationMinutes: durationMinutes,
     intensity,
     estimatedCalories,
-    rationale: `Secuencia optimizada para generar el máximo beneficio funcional en un bloque exacto de ${durationMinutes} minutos.`,
+    rationale,
     exercises,
     isQuickWorkout: true
   };

@@ -19,7 +19,8 @@ import {
   DietaryPreferenceType,
   ReminderPreferences,
   DEFAULT_REMINDER_PREFERENCES,
-  InAppReminder
+  InAppReminder,
+  PhysicalLimitation
 } from '../types/fitness';
 import { 
   sendLocalBrowserNotification, 
@@ -187,6 +188,7 @@ interface FitnessContextType {
   
   // Actions
   updateUser: (profile: Partial<UserProfile>) => void;
+  recalibrateWorkoutWithLimitations: (limitations: PhysicalLimitation[]) => void;
   submitAssessment: (scores: FitnessScores) => void;
   updateReadiness: (feeling: 'poor' | 'okay' | 'good' | 'great', energy: 1|2|3|4|5, soreness: 'none'|'light'|'moderate'|'high') => void;
   startWorkout: (workout?: Workout) => void;
@@ -349,6 +351,11 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
               provider: currentUser.providerData?.[0]?.providerId || 'firebase',
               lastActiveAt: nowIso
             }));
+
+            // If user has not calibrated their goals/injuries yet, trigger calibration modal
+            if (!cloudProfile.hasCompletedAssessment) {
+              setIsAssessmentModalOpen(true);
+            }
           } else {
             // New user in Firestore: initialize profile with zeroed baseline
             const providerId = currentUser.providerData?.[0]?.providerId || 'firebase';
@@ -385,6 +392,9 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
             // Initialize clean zero gamification document in Firestore
             await saveGamificationToFirestore(currentUser.uid, DEFAULT_GAMIFICATION);
+
+            // Automatically open Biomechanical Calibration modal for new user
+            setIsAssessmentModalOpen(true);
           }
 
           // 2. Fetch individual workout history from Firestore
@@ -546,6 +556,19 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
       selected = generateTodayWorkout(user, readiness, workoutHistory);
     }
     setActiveWorkout(selected);
+  };
+
+  const recalibrateWorkoutWithLimitations = (limitations: PhysicalLimitation[]) => {
+    const updatedUser: UserProfile = { ...user, limitations };
+    setUser(updatedUser);
+    const newWorkout = generateTodayWorkout(updatedUser, readiness, workoutHistory);
+    setTodayWorkout(newWorkout);
+    setActiveWorkout(newWorkout);
+    if (authUser) {
+      syncUserProfileToFirestore(authUser.uid, { limitations }).catch(err => {
+        console.error('Failed to sync limitations to Firestore:', err);
+      });
+    }
   };
 
   const cancelActiveWorkout = () => {
@@ -802,7 +825,7 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const launchQuickWorkout = (minutes: 5 | 10 | 15) => {
-    const quick = generateQuickWorkout(minutes);
+    const quick = generateQuickWorkout(minutes, user?.limitations || []);
     startWorkout(quick);
   };
 
@@ -1072,6 +1095,7 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
       currentTab,
       setCurrentTab,
       updateUser,
+      recalibrateWorkoutWithLimitations,
       submitAssessment,
       updateReadiness,
       startWorkout,

@@ -17,7 +17,8 @@ import {
   Flame, 
   ChevronRight,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  ShieldAlert
 } from 'lucide-react';
 import { UserProfile } from '../../types/fitness';
 import { fetchAllUsersForAdmin } from '../../lib/firebase';

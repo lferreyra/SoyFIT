@@ -69,7 +69,7 @@ export const NutritionView: React.FC = () => {
   ];
 
   const currentDay = nutrition.selectedChallengeDay || 1;
-  const currentDiet = (nutrition.dietaryPreference === 'dukan_keto' ? 'hiperproteico' : nutrition.dietaryPreference) || 'omnivore';
+  const currentDiet: string = (nutrition.dietaryPreference === 'dukan_keto' ? 'hiperproteico' : nutrition.dietaryPreference) || 'omnivore';
 
   const mealTypeLabels: Record<string, string> = {
     'Breakfast': 'Desayuno',
