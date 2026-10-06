@@ -1,12 +1,12 @@
 {
-  "projectId": "singular-star-tgmzr",
-  "appId": "1:199345473235:web:075af2a8d8283733a73626",
-  "apiKey": "AIzaSyAnZCAISpBTAWlvJ8_dgeXRE-pz1ruAGxw",
-  "authDomain": "singular-star-tgmzr.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-evolve-dc6b2906-eb1d-4249-ab53-6b9b11c2df86",
-  "storageBucket": "singular-star-tgmzr.firebasestorage.app",
-  "messagingSenderId": "199345473235",
-  "measurementId": "",
-  "oAuthClientId": "199345473235-mnnhft39ecaq7u0km7a6djm7kmjbqdb9.apps.googleusercontent.com",
+  "projectId": "soyfit-7ad59",
+  "appId": "1:991181023027:web:2465786d73133dded7c046",
+  "apiKey": "AIzaSyAmGjSVUbyBytRnjZSQWYSxJb250n67neM",
+  "authDomain": "soyfit-7ad59.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "soyfit-7ad59.firebasestorage.app",
+  "messagingSenderId": "991181023027",
+  "measurementId": "G-KVF6FPMFHJ",
+  "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }

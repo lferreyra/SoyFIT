@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   GoogleAuthProvider, 
-  GithubAuthProvider, 
   signInWithPopup, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -29,15 +28,26 @@ import { UserProfile, WorkoutSessionHistory, GamificationState } from '../types/
 // Initialize Firebase App
 export const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with custom databaseId if specified
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// Initialize Firestore (handles both (default) and custom databaseId)
+const customDbId = (firebaseConfig as any).firestoreDatabaseId;
+export const db = customDbId && customDbId !== '(default)'
+  ? getFirestore(app, customDbId)
+  : getFirestore(app);
+
+// Optional Analytics for measurementId
+if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+  try {
+    import('firebase/analytics').then(({ getAnalytics }) => {
+      getAnalytics(app);
+    }).catch(() => {});
+  } catch (e) {}
+}
 
 // Initialize Auth
 export const auth = getAuth(app);
 
 // Auth Providers
 export const googleProvider = new GoogleAuthProvider();
-export const githubProvider = new GithubAuthProvider();
 
 // Standard Firebase Security Rules Error Handling
 export enum OperationType {
@@ -108,16 +118,6 @@ export async function signInWithGoogle() {
     return result.user;
   } catch (error: any) {
     console.error('Google Sign-In Error:', error);
-    throw error;
-  }
-}
-
-export async function signInWithGithub() {
-  try {
-    const result = await signInWithPopup(auth, githubProvider);
-    return result.user;
-  } catch (error: any) {
-    console.error('GitHub Sign-In Error:', error);
     throw error;
   }
 }

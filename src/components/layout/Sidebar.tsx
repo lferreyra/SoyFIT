@@ -11,7 +11,6 @@ import {
   RotateCcw,
   LogIn,
   LogOut,
-  Github,
   ShieldCheck
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
@@ -178,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab: propTab, onTabChan
                 Nube Sincronizada
               </span>
               <span className="uppercase text-[#6F7D78] font-semibold">
-                {authUser.providerData[0]?.providerId === 'google.com' ? 'Google' : authUser.providerData[0]?.providerId === 'github.com' ? 'GitHub' : 'Email'}
+                {authUser.providerData[0]?.providerId === 'google.com' ? 'Google' : 'Email'}
               </span>
             </div>
           </div>
