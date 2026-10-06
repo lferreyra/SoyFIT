@@ -1,5 +1,17 @@
-import React, { useMemo } from 'react';
-import { Play, Pause, RefreshCw, SkipForward, Check, ShieldCheck, Flame, Dumbbell, Zap } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Play, 
+  Pause, 
+  RefreshCw, 
+  Check, 
+  ShieldCheck, 
+  Flame, 
+  Dumbbell, 
+  Zap, 
+  ChevronDown, 
+  AlertTriangle 
+} from 'lucide-react';
+import { getAssetUrl } from '../../utils/assets';
 
 interface ExerciseProgressClockProps {
   exerciseName: string;
@@ -12,6 +24,8 @@ interface ExerciseProgressClockProps {
   targetReps?: number;
   briefInstruction?: string;
   safetyNote?: string;
+  instructions?: string[];
+  commonMistakes?: string[];
   imageUrl?: string;
   isPaused: boolean;
   onTogglePause: () => void;
@@ -31,6 +45,8 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
   targetReps = 10,
   briefInstruction,
   safetyNote,
+  instructions,
+  commonMistakes,
   imageUrl,
   isPaused,
   onTogglePause,
@@ -38,6 +54,14 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
   onSkipExercise,
   onOpenReplaceModal
 }) => {
+  // Expandable technique details dropdown
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+
+  // Reset dropdown when exercise changes
+  useEffect(() => {
+    setIsDetailsExpanded(false);
+  }, [exerciseName]);
+
   // Target duration in seconds (auto-advancing set timer)
   const targetSeconds = isTimed
     ? Math.max(5, targetDurationSeconds)
@@ -46,7 +70,7 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
   const remainingSeconds = Math.max(0, targetSeconds - timerExerciseSeconds);
   const progressPercent = Math.min(100, Math.max(0, (timerExerciseSeconds / targetSeconds) * 100));
 
-  // Compact circular SVG geometry to guarantee zero vertical scrolling
+  // Compact circular SVG geometry
   const size = 180;
   const strokeWidth = 8;
   const center = size / 2;
@@ -82,12 +106,14 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
   const tipX = center + radius * Math.cos(tipAngleRad);
   const tipY = center + radius * Math.sin(tipAngleRad);
 
+  const displayInstruction = briefInstruction || instructions?.[0] || 'Realizá el movimiento de manera controlada y continua.';
+
   return (
     <div className="relative rounded-3xl overflow-hidden border border-white/15 shadow-xl text-white flex flex-col justify-between">
       {/* Background illustrative image with dark gradient overlay */}
       {imageUrl && (
         <img
-          src={imageUrl}
+          src={getAssetUrl(imageUrl)}
           alt={exerciseName}
           className="absolute inset-0 w-full h-full object-cover"
           referrerPolicy="no-referrer"
@@ -96,7 +122,7 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
       <div className="absolute inset-0 bg-gradient-to-b from-[#101815]/95 via-[#14201D]/90 to-[#101815]/98" />
 
       {/* Main Content: compact & viewport-disciplined */}
-      <div className="relative z-10 p-4 sm:p-5 flex flex-col justify-between space-y-3">
+      <div className="relative z-10 p-3.5 sm:p-4 flex flex-col justify-between space-y-2.5">
         {/* Top Icon Badges */}
         <div className="flex items-center justify-between gap-2">
           <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-black uppercase text-[#DCEFE8]">
@@ -124,21 +150,87 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
           </h2>
         </div>
 
-        {/* Compact Technique Cue (1 concise line with lightbulb icon) */}
-        {briefInstruction && (
-          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-3 py-1.5 text-[11px] text-gray-200 flex items-center gap-2 shadow-xs">
-            <span className="text-xs shrink-0">💡</span>
-            <p className="truncate font-medium flex-1">
-              {briefInstruction}
-            </p>
-            {safetyNote && (
-              <ShieldCheck className="w-3.5 h-3.5 text-[#56B89D] shrink-0" title={safetyNote} />
-            )}
-          </div>
-        )}
+        {/* Expandable Technique Dropdown Accordion */}
+        <div className="w-full">
+          <button
+            type="button"
+            onClick={() => setIsDetailsExpanded(prev => !prev)}
+            className="w-full bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 rounded-xl px-3 py-1.5 text-xs text-gray-200 flex items-center justify-between gap-2 shadow-xs transition-all cursor-pointer active:scale-[0.99]"
+            title={isDetailsExpanded ? 'Cerrar técnica' : 'Ver técnica paso a paso'}
+          >
+            <div className="flex items-center gap-2 min-w-0 pr-1 truncate">
+              <span className="text-xs shrink-0">💡</span>
+              <span className="font-extrabold text-[10px] uppercase tracking-wider text-[#A8D5C7] shrink-0">
+                Técnica:
+              </span>
+              <p className="truncate text-[11px] text-gray-100 font-medium">
+                {displayInstruction}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0 text-[#A8D5C7] text-[10px] font-bold pl-1 border-l border-white/10">
+              <span>{isDetailsExpanded ? 'Ocultar' : 'Ver cómo'}</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDetailsExpanded ? 'rotate-180 text-white' : ''}`} />
+            </div>
+          </button>
+
+          {/* Expanded Step-by-Step Instructions & Safety Modal Panel */}
+          {isDetailsExpanded && (
+            <div className="mt-2 bg-[#0C1412]/95 border border-white/20 backdrop-blur-xl rounded-2xl p-3.5 space-y-3 text-left animate-in fade-in slide-in-from-top-1 duration-200 shadow-2xl max-h-48 overflow-y-auto pr-1">
+              {/* Step by step list */}
+              {instructions && instructions.length > 0 ? (
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#56B89D] block">
+                    Paso a paso:
+                  </span>
+                  <div className="space-y-1.5 text-xs text-gray-200">
+                    {instructions.map((step, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="w-4 h-4 rounded-full bg-white/10 text-white font-mono font-bold text-[9px] flex items-center justify-center shrink-0 mt-0.5 border border-white/10">
+                          {idx + 1}
+                        </span>
+                        <p className="leading-snug text-[11px] text-gray-200">
+                          {step}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-200 leading-relaxed">
+                  {displayInstruction}
+                </p>
+              )}
+
+              {/* Common mistakes to avoid */}
+              {commonMistakes && commonMistakes.length > 0 && (
+                <div className="pt-2 border-t border-white/10 space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#E9A06D] flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3 text-[#E9A06D]" />
+                    <span>Errores comunes a evitar:</span>
+                  </span>
+                  <ul className="space-y-1 text-[10px] text-gray-300 list-disc list-inside">
+                    {commonMistakes.map((mistake, idx) => (
+                      <li key={idx} className="leading-tight">
+                        {mistake}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Safety note / Biomechanical cue */}
+              {safetyNote && (
+                <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-[10px] text-[#A8D5C7] font-semibold">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#56B89D] shrink-0" />
+                  <span>{safetyNote}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Circular Dial: Compact 180px */}
-        <div className="relative flex flex-col items-center justify-center py-1">
+        <div className="relative flex flex-col items-center justify-center py-0.5">
           <div className="relative w-[180px] h-[180px]">
             <svg className="w-full h-full -rotate-90" viewBox={`0 0 ${size} ${size}`}>
               <defs>
@@ -222,7 +314,7 @@ export const ExerciseProgressClock: React.FC<ExerciseProgressClockProps> = ({
         </div>
 
         {/* Minimal Icon Controls (Single compact row to eliminate scrolling) */}
-        <div className="grid grid-cols-4 gap-2 pt-1">
+        <div className="grid grid-cols-4 gap-2 pt-0.5">
           {/* Pause / Play (User only taps if they need to pause!) */}
           <button
             type="button"

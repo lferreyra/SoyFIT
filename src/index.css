@@ -63,3 +63,35 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(111, 125, 120, 0.35);
 }
+
+/* Gemini AI glowing border sweep animation */
+@keyframes geminiGlowSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gemini-border-glow {
+  position: absolute;
+  top: -200%;
+  left: -200%;
+  width: 500%;
+  height: 500%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 110deg,
+    rgba(86, 184, 157, 0.25) 150deg,
+    #56B89D 180deg,
+    #A8D5C7 200deg,
+    #E9A06D 220deg,
+    rgba(233, 160, 109, 0.35) 250deg,
+    transparent 290deg,
+    transparent 360deg
+  );
+  animation: geminiGlowSpin 3.5s linear infinite;
+  pointer-events: none;
+}

@@ -20,10 +20,13 @@ export const InAppReminderToast: React.FC = () => {
     addWater, 
     startWorkout, 
     todayWorkout, 
-    setCurrentTab 
+    setCurrentTab,
+    isLandingCarouselOpen,
+    isAuthModalOpen
   } = useFitness();
 
   const [waterLoggedNotice, setWaterLoggedNotice] = useState(false);
+  const [locallyDismissedId, setLocallyDismissedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeReminder) {
@@ -31,21 +34,35 @@ export const InAppReminderToast: React.FC = () => {
     }
   }, [activeReminder]);
 
-  if (!activeReminder) return null;
+  // Do not render if there's no reminder, or if it was dismissed locally, or while viewing the landing carousel or auth modal
+  if (!activeReminder || activeReminder.id === locallyDismissedId || isLandingCarouselOpen || isAuthModalOpen) {
+    return null;
+  }
 
   const isHydration = activeReminder.type === 'hydration';
+
+  const handleDismiss = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (activeReminder) {
+      setLocallyDismissedId(activeReminder.id);
+    }
+    dismissReminder();
+  };
 
   const handleQuickAddWater = () => {
     addWater(0.25);
     setWaterLoggedNotice(true);
     setTimeout(() => {
-      dismissReminder();
+      handleDismiss();
     }, 1800);
   };
 
   const handleStartWorkoutNow = () => {
     startWorkout(todayWorkout);
-    dismissReminder();
+    handleDismiss();
   };
 
   const handleGoToView = () => {
@@ -54,19 +71,19 @@ export const InAppReminderToast: React.FC = () => {
     } else {
       setCurrentTab('train');
     }
-    dismissReminder();
+    handleDismiss();
   };
 
   return (
     <div className="fixed top-4 right-4 z-50 max-w-sm sm:max-w-md w-full animate-in slide-in-from-top-4 fade-in duration-300 pointer-events-none">
       <div className="pointer-events-auto bg-[#20312D] text-white rounded-3xl p-5 shadow-2xl border border-white/10 backdrop-blur-xl relative overflow-hidden">
-        {/* Glowing Background Accent */}
+        {/* Glowing Background Accent - pointer-events-none to prevent click obstruction */}
         <div 
-          className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-2xl opacity-30 ${isHydration ? 'bg-[#56B89D]' : 'bg-[#E9A06D]'}`} 
+          className={`absolute -top-12 -right-12 w-32 h-32 rounded-full blur-2xl opacity-30 pointer-events-none ${isHydration ? 'bg-[#56B89D]' : 'bg-[#E9A06D]'}`} 
         />
 
         {/* Header Bar */}
-        <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="relative z-10 flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full animate-ping ${isHydration ? 'bg-[#56B89D]' : 'bg-[#E9A06D]'}`} />
             <span className={`text-[10px] font-black uppercase tracking-wider ${isHydration ? 'text-[#56B89D]' : 'text-[#E9A06D]'}`}>
@@ -79,11 +96,13 @@ export const InAppReminderToast: React.FC = () => {
               <Clock className="w-3 h-3" /> Ahora
             </span>
             <button
-              onClick={() => dismissReminder()}
-              className="text-white/60 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+              type="button"
+              onClick={handleDismiss}
+              className="relative z-20 text-white/70 hover:text-white p-1.5 rounded-full bg-white/5 hover:bg-white/20 active:scale-90 transition-all cursor-pointer flex items-center justify-center"
               title="Cerrar recordatorio"
+              aria-label="Cerrar recordatorio"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>

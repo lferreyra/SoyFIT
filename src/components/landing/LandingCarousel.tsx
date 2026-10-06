@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  Sparkles, 
   Dumbbell, 
   Salad, 
   Flame, 
@@ -12,9 +11,7 @@ import {
   LogIn, 
   UserPlus, 
   X,
-  ShieldCheck,
-  Zap,
-  Play
+  Compass
 } from 'lucide-react';
 import { getAssetUrl } from '../../utils/assets';
 
@@ -107,17 +104,31 @@ export const LandingCarousel: React.FC<LandingCarouselProps> = ({
   onOpenRegister
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const [touchFeedbackSide, setTouchFeedbackSide] = useState<'left' | 'right' | null>(null);
 
-  // Auto-advance slides every 6 seconds if not paused
+  // NOTE: Automatic loop has been completely removed as requested.
+  // The user advances manually using arrows, swiping, or tapping the left/right sides.
+
+  // Keyboard navigation support
   useEffect(() => {
-    if (!isOpen || isPaused) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [isOpen, isPaused]);
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        handleNext();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, currentIndex]);
 
   if (!isOpen) return null;
 
@@ -126,41 +137,63 @@ export const LandingCarousel: React.FC<LandingCarouselProps> = ({
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
+    triggerSideFeedback('right');
   };
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length);
+    triggerSideFeedback('left');
   };
 
+  const triggerSideFeedback = (side: 'left' | 'right') => {
+    setTouchFeedbackSide(side);
+    setTimeout(() => {
+      setTouchFeedbackSide(null);
+    }, 250);
+  };
+
+  // Touch Swipe Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
+    if (touchStartX.current === null || touchStartY.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX.current - touchEndX;
-    if (diff > 50) {
-      handleNext();
-    } else if (diff < -50) {
-      handlePrev();
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchStartX.current - touchEndX;
+    const diffY = touchStartY.current - touchEndY;
+    const duration = Date.now() - touchStartTime.current;
+
+    // Detect horizontal swipe (horizontal distance > 35px and dominant over vertical)
+    if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY) && duration < 800) {
+      if (diffX > 0) {
+        // Swiped left -> advance to next
+        handleNext();
+      } else {
+        // Swiped right -> go to previous
+        handlePrev();
+      }
     }
+
     touchStartX.current = null;
+    touchStartY.current = null;
   };
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-300"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-in fade-in duration-300 select-none"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Container Card with Glass Blurred Effect */}
-      <div className="relative w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-white/20 bg-[#16221F]/90 backdrop-blur-2xl text-white my-auto">
-        
+      <div 
+        className="relative w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-white/20 bg-[#16221F]/90 backdrop-blur-2xl text-white my-auto min-h-[560px] flex flex-col justify-between"
+      >
         {/* Top Floating Header Bar */}
-        <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-5 sm:px-8 py-4 bg-gradient-to-b from-black/70 to-transparent">
+        <div className="relative z-30 flex items-center justify-between px-5 sm:px-8 py-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#56B89D] to-[#3B967D] flex items-center justify-center text-white font-black text-sm shadow-md">
               S
@@ -172,50 +205,153 @@ export const LandingCarousel: React.FC<LandingCarouselProps> = ({
 
           <div className="flex items-center gap-2 sm:gap-3">
             <button
-              onClick={() => {
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
                 onClose();
                 onOpenLogin();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold text-white transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 backdrop-blur-md border border-white/20 text-xs font-bold text-white transition-all cursor-pointer shadow-sm"
             >
               <LogIn className="w-3.5 h-3.5 text-[#56B89D]" />
               <span>Iniciar Sesión</span>
             </button>
 
             <button
-              onClick={onClose}
-              className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white/80 hover:text-white backdrop-blur-md transition-all cursor-pointer"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="p-2 rounded-full bg-black/40 hover:bg-black/70 text-white/80 hover:text-white active:scale-95 backdrop-blur-md transition-all cursor-pointer border border-white/10"
               aria-label="Cerrar presentación"
+              title="Cerrar"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
+        {/* Stories-Style Top Progress Segments (Tap directly to jump) */}
+        <div className="relative z-30 px-5 sm:px-8 pt-1 pb-2 flex items-center gap-2">
+          {CAROUSEL_SLIDES.map((slide, idx) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex(idx);
+              }}
+              className="flex-1 h-1.5 rounded-full overflow-hidden bg-white/20 hover:bg-white/40 transition-all cursor-pointer group"
+              title={`Paso ${idx + 1}: ${slide.badge}`}
+              aria-label={`Ir al paso ${idx + 1}`}
+            >
+              <div 
+                className={`h-full transition-all duration-300 ${
+                  idx === currentIndex 
+                    ? 'bg-[#56B89D] shadow-sm' 
+                    : idx < currentIndex 
+                    ? 'bg-white/60' 
+                    : 'bg-transparent'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+
         {/* Carousel Visual Body */}
-        <div className="relative min-h-[480px] sm:min-h-[540px] flex flex-col justify-end">
-          {/* Background Image with Gradient Overlay */}
-          <div className="absolute inset-0 z-0">
+        <div className="relative flex-1 flex flex-col justify-end min-h-[460px] sm:min-h-[500px]">
+          {/* Background Image with Deep Gradient Overlays */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
             <img 
               src={getAssetUrl(currentSlide.image)} 
               alt={currentSlide.title}
               className="w-full h-full object-cover object-center transition-all duration-700 scale-105"
             />
             {/* Deep Glass Blurring Vignette Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#111A18] via-[#111A18]/75 to-[#111A18]/30 backdrop-blur-[2px]" />
-            <div className="absolute inset-0 bg-radial from-transparent via-black/30 to-black/70" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#111A18] via-[#111A18]/80 to-[#111A18]/30 backdrop-blur-[1px]" />
+            <div className="absolute inset-0 bg-radial from-transparent via-black/30 to-black/75" />
           </div>
 
+          {/* TOUCH & TAP ZONES (User requested tap on left side to go back, right side to advance) */}
+          {/* Left tap zone: Tap to go back */}
+          <div 
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrev();
+            }}
+            className="absolute left-0 top-0 bottom-24 w-1/4 sm:w-1/3 z-15 cursor-pointer flex items-center justify-start pl-2 sm:pl-4 group transition-all"
+            title="Tocá aquí para volver al anterior"
+            aria-label="Anterior"
+          >
+            <div className="opacity-0 group-hover:opacity-100 group-active:opacity-100 p-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/25 text-white/90 shadow-xl transition-all scale-95 group-hover:scale-105">
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+          </div>
+
+          {/* Right tap zone: Tap to advance */}
+          <div 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNext();
+            }}
+            className="absolute right-0 top-0 bottom-24 w-1/4 sm:w-1/3 z-15 cursor-pointer flex items-center justify-end pr-2 sm:pr-4 group transition-all"
+            title="Tocá aquí para avanzar al siguiente"
+            aria-label="Siguiente"
+          >
+            <div className="opacity-0 group-hover:opacity-100 group-active:opacity-100 p-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/25 text-white/90 shadow-xl transition-all scale-95 group-hover:scale-105">
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+          </div>
+
+          {/* Visual Touch Flash Ripple */}
+          {touchFeedbackSide && (
+            <div 
+              className={`absolute top-0 bottom-0 pointer-events-none transition-opacity duration-300 z-10 ${
+                touchFeedbackSide === 'left' 
+                  ? 'left-0 w-1/4 bg-gradient-to-r from-white/10 to-transparent' 
+                  : 'right-0 w-1/4 bg-gradient-to-l from-white/10 to-transparent'
+              }`} 
+            />
+          )}
+
+          {/* PROMINENT LATERAL ARROW BUTTONS (Desktop & Mobile) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrev();
+            }}
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-25 p-3 rounded-full bg-black/55 hover:bg-[#20312D] text-white/85 hover:text-white backdrop-blur-lg border border-white/20 shadow-xl transition-all hover:scale-110 active:scale-90 flex items-center justify-center cursor-pointer"
+            aria-label="Diapositiva anterior"
+            title="Anterior"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNext();
+            }}
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-25 p-3 rounded-full bg-black/55 hover:bg-[#20312D] text-white/85 hover:text-white backdrop-blur-lg border border-white/20 shadow-xl transition-all hover:scale-110 active:scale-90 flex items-center justify-center cursor-pointer"
+            aria-label="Siguiente diapositiva"
+            title="Siguiente"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
           {/* Slide Content Overlay */}
-          <div className="relative z-10 p-6 sm:p-10 pt-20 max-w-3xl">
+          <div className="relative z-20 p-5 sm:p-10 pt-8 max-w-3xl pointer-events-none">
             {/* Functional Category Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#56B89D]/20 backdrop-blur-md border border-[#56B89D]/40 text-[#56B89D] text-xs font-black tracking-wider uppercase mb-3 shadow-inner">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#56B89D]/20 backdrop-blur-md border border-[#56B89D]/40 text-[#56B89D] text-xs font-black tracking-wider uppercase mb-2 sm:mb-3 shadow-inner pointer-events-auto">
               <BadgeIcon className="w-3.5 h-3.5 text-[#56B89D]" />
               <span>{currentSlide.badge}</span>
             </div>
 
             {/* Slide Title */}
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight mb-3 drop-shadow-md">
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight mb-2 sm:mb-3 drop-shadow-md pointer-events-auto">
               {currentSlide.title}{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#56B89D] via-[#75CEB5] to-[#E9A06D]">
                 {currentSlide.highlight}
@@ -223,16 +359,16 @@ export const LandingCarousel: React.FC<LandingCarouselProps> = ({
             </h2>
 
             {/* Description */}
-            <p className="text-sm sm:text-base text-gray-200 leading-relaxed font-normal mb-6 max-w-2xl drop-shadow-sm">
+            <p className="text-xs sm:text-base text-gray-200 leading-relaxed font-normal mb-4 sm:mb-6 max-w-2xl drop-shadow-sm pointer-events-auto">
               {currentSlide.description}
             </p>
 
             {/* Glass Feature Bullets */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 mb-6 sm:mb-8 pointer-events-auto">
               {currentSlide.features.map((feature, idx) => (
                 <div 
                   key={idx}
-                  className="flex items-start gap-2 p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 text-xs text-white/90 shadow-sm"
+                  className="flex items-start gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 text-xs text-white/90 shadow-sm"
                 >
                   <CheckCircle2 className="w-4 h-4 text-[#56B89D] shrink-0 mt-0.5" />
                   <span className="leading-snug">{feature}</span>
@@ -241,13 +377,15 @@ export const LandingCarousel: React.FC<LandingCarouselProps> = ({
             </div>
 
             {/* Bottom Actions Row */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pointer-events-auto">
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
                   onClose();
                   onOpenRegister();
                 }}
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-[#56B89D] to-[#3B967D] hover:from-[#4AA88F] hover:to-[#31826B] text-[#111A18] font-black text-sm shadow-lg shadow-[#56B89D]/25 transition-all hover:scale-[1.02] cursor-pointer"
+                className="flex items-center gap-2 px-5 sm:px-6 py-3 rounded-2xl bg-gradient-to-r from-[#56B89D] to-[#3B967D] hover:from-[#4AA88F] hover:to-[#31826B] text-[#111A18] font-black text-xs sm:text-sm shadow-lg shadow-[#56B89D]/25 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
               >
                 <UserPlus className="w-4 h-4 text-[#111A18]" />
                 <span>Crear Cuenta & Comenzar</span>
@@ -255,59 +393,58 @@ export const LandingCarousel: React.FC<LandingCarouselProps> = ({
               </button>
 
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
                   onClose();
                   onOpenLogin();
                 }}
-                className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/15 hover:bg-white/25 backdrop-blur-xl border border-white/20 text-white font-bold text-sm transition-all cursor-pointer"
+                className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-2xl bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-xl border border-white/20 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer"
               >
                 <LogIn className="w-4 h-4 text-[#56B89D]" />
                 <span>Ya tengo cuenta</span>
               </button>
 
               <button
-                onClick={onClose}
-                className="px-4 py-3 rounded-2xl text-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+                className="px-3 sm:px-4 py-3 rounded-2xl text-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
               >
                 Explorar como invitado →
               </button>
             </div>
           </div>
 
-          {/* Navigation Controls: Arrows & Indicators */}
-          <div className="relative z-10 px-6 sm:px-10 pb-6 flex items-center justify-between">
+          {/* Navigation Footer: Dots & Subtle Gesture Hint */}
+          <div className="relative z-30 px-5 sm:px-10 pb-5 sm:pb-6 flex items-center justify-between gap-4">
+            {/* Gesture Hint for Mobile / Touch Users */}
+            <div className="flex items-center gap-1.5 text-[11px] text-white/60 font-medium bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+              <Compass className="w-3.5 h-3.5 text-[#56B89D]" />
+              <span className="hidden sm:inline">Deslizá con el dedo o tocá los laterales para navegar ({currentIndex + 1}/4)</span>
+              <span className="sm:hidden">Deslizá o tocá los lados ({currentIndex + 1}/4)</span>
+            </div>
+
             {/* Slide Indicator Dots */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {CAROUSEL_SLIDES.map((slide, idx) => (
                 <button
                   key={slide.id}
-                  onClick={() => setCurrentIndex(idx)}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentIndex(idx);
+                  }}
                   className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                     currentIndex === idx 
-                      ? 'w-8 bg-[#56B89D]' 
+                      ? 'w-7 sm:w-8 bg-[#56B89D]' 
                       : 'w-2 bg-white/30 hover:bg-white/60'
                   }`}
                   aria-label={`Ir al paso ${idx + 1}`}
                 />
               ))}
-            </div>
-
-            {/* Prev / Next Arrows */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrev}
-                className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white transition-all hover:scale-105 cursor-pointer"
-                aria-label="Anterior"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleNext}
-                className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white transition-all hover:scale-105 cursor-pointer"
-                aria-label="Siguiente"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
             </div>
           </div>
         </div>

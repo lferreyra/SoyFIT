@@ -135,37 +135,32 @@ export const BiomechanicalCalibrationModal: React.FC<BiomechanicalCalibrationMod
   const goalsConfig: Array<{
     id: FitnessGoal;
     title: string;
-    description: string;
     icon: any;
     accent: string;
   }> = [
     {
       id: 'lose_fat',
-      title: 'Definición & Pérdida de Grasa',
-      description: 'Déficit calórico controlado, circuitos de densidad metabólica y preservación de masa muscular magra.',
+      title: 'Bajar de peso / quemar grasa corporal',
       icon: Flame,
       accent: '#E9A06D'
     },
     {
       id: 'build_muscle',
-      title: 'Hipertrofia & Tono Muscular',
-      description: 'Tensión mecánica óptima, cadencia controlada y sobrecarga progresiva para máxima síntesis proteica.',
+      title: 'Tonificación muscular',
       icon: Dumbbell,
       accent: '#56B89D'
     },
     {
-      id: 'improve_strength',
-      title: 'Fuerza & Atletismo Calisténico',
-      description: 'Dominio del peso corporal, potencia funcional neuromuscular y articulaciones resilientes.',
-      icon: Zap,
-      accent: '#20312D'
-    },
-    {
-      id: 'general_fitness',
-      title: 'Salud Articular & Longevidad',
-      description: 'Moverse sin dolor, descompresión postural diaria, movilidad fluida y vitalidad cardiovascular.',
+      id: 'improve_mobility',
+      title: 'Flexibilidad y movilidad',
       icon: Heart,
       accent: '#3A8E77'
+    },
+    {
+      id: 'improve_strength',
+      title: 'Fuerza muscular',
+      icon: Zap,
+      accent: '#20312D'
     }
   ];
 
@@ -288,33 +283,30 @@ export const BiomechanicalCalibrationModal: React.FC<BiomechanicalCalibrationMod
                     key={goal.id}
                     type="button"
                     onClick={() => setPrimaryGoal(goal.id)}
-                    className={`p-4 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isSelected 
                         ? 'bg-white border-[#20312D] shadow-md ring-2 ring-[#20312D]/10' 
                         : 'bg-white/60 border-black/5 hover:bg-white hover:border-black/10'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div 
-                        className="w-9 h-9 rounded-xl flex items-center justify-center"
+                        className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center"
                         style={{ backgroundColor: `${goal.accent}15`, color: goal.accent }}
                       >
                         <Icon className="w-5 h-5" />
                       </div>
-                      {isSelected && (
-                        <div className="w-5 h-5 rounded-full bg-[#20312D] text-white flex items-center justify-center">
-                          <Check className="w-3 h-3 stroke-[3]" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-[#20312D] mb-1">
+                      <h3 className="text-xs font-black text-[#20312D] truncate">
                         {goal.title}
                       </h3>
-                      <p className="text-xs text-[#6F7D78] leading-relaxed">
-                        {goal.description}
-                      </p>
                     </div>
+                    {isSelected ? (
+                      <div className="w-5 h-5 rounded-full bg-[#20312D] text-white shrink-0 flex items-center justify-center">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border border-black/15 shrink-0" />
+                    )}
                   </button>
                 );
               })}
@@ -408,7 +400,7 @@ export const BiomechanicalCalibrationModal: React.FC<BiomechanicalCalibrationMod
               </p>
             </div>
 
-            {/* Joint Limitations Grid */}
+            {/* Joint Limitations Grid - Clean Title Options */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {jointLimitationsConfig.map(joint => {
                 const isSelected = limitations.includes(joint.id);
@@ -417,34 +409,26 @@ export const BiomechanicalCalibrationModal: React.FC<BiomechanicalCalibrationMod
                     key={joint.id}
                     type="button"
                     onClick={() => handleToggleLimitation(joint.id)}
-                    className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isSelected
                         ? joint.id === 'none'
-                          ? 'bg-emerald-50/80 border-[#56B89D] shadow-xs'
-                          : 'bg-amber-50/70 border-[#E9A06D] shadow-xs'
-                        : 'bg-white/70 border-black/5 hover:bg-white'
+                          ? 'bg-emerald-50 border-[#56B89D] shadow-xs ring-1 ring-[#56B89D]'
+                          : 'bg-amber-50 border-[#E9A06D] shadow-xs ring-1 ring-[#E9A06D]'
+                        : 'bg-white/70 border-black/5 hover:bg-white hover:border-black/10'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">{joint.iconText}</span>
-                        <h4 className="text-xs font-black text-[#20312D]">
-                          {joint.name}
-                        </h4>
-                      </div>
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${
-                        isSelected 
-                          ? joint.id === 'none' ? 'bg-[#56B89D] border-[#56B89D] text-white' : 'bg-[#E9A06D] border-[#E9A06D] text-white'
-                          : 'border-black/20 bg-white'
-                      }`}>
-                        {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                      </div>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-xl shrink-0">{joint.iconText}</span>
+                      <h4 className="text-xs font-black text-[#20312D] truncate">
+                        {joint.name}
+                      </h4>
                     </div>
-                    <p className="text-[11px] text-[#6F7D78] mb-1.5">
-                      {joint.description}
-                    </p>
-                    <div className="bg-white/80 p-2 rounded-xl text-[10px] text-[#20312D] font-medium border border-black/5">
-                      <span className="font-bold text-[#3A8E77]">Adaptación:</span> {joint.coachAction}
+                    <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center border transition-colors ${
+                      isSelected 
+                        ? joint.id === 'none' ? 'bg-[#56B89D] border-[#56B89D] text-white' : 'bg-[#E9A06D] border-[#E9A06D] text-white'
+                        : 'border-black/20 bg-white'
+                    }`}>
+                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
                   </button>
                 );

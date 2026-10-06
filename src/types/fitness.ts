@@ -313,9 +313,17 @@ export interface Meal {
   dietaryTags: string[];
   benefitTip?: string;
   imageUrl?: string;
+  dietPhase?: string;
 }
 
-export type DietaryPreferenceType = 'omnivore' | 'vegetarian' | 'vegan' | 'hiperproteico' | 'dukan_keto';
+export type DietaryPreferenceType = 
+  | 'omnivore' 
+  | 'vegetarian' 
+  | 'vegan' 
+  | 'hiperproteico' 
+  | 'dukan_keto' 
+  | 'dukan' 
+  | 'pomroy';
 
 export interface NutritionPlan {
   dailyCalorieTarget: number;

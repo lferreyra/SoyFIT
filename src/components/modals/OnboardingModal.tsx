@@ -233,14 +233,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1">
               {[
-                { id: 'lose_fat', label: 'Perder grasa corporal', desc: 'Optimizar el gasto calórico y preservar tono muscular' },
-                { id: 'build_muscle', label: 'Desarrollar masa muscular', desc: 'Estimular hipertrofia con sobrecarga progresiva' },
-                { id: 'improve_strength', label: 'Ganar fuerza real', desc: 'Dominar flexiones, sentadillas y calistenia estricta' },
-                { id: 'improve_endurance', label: 'Mejorar resistencia', desc: 'Aumentar la estamina cardiovascular y pulmonar' },
-                { id: 'improve_mobility', label: 'Movilidad y flexibilidad', desc: 'Descomprimir articulaciones y ganar rango de movimiento' },
-                { id: 'general_fitness', label: 'Salud física integral', desc: 'Fuerza equilibrada, estabilidad y energía diaria' },
-                { id: 'improve_consistency', label: 'Constancia y hábitos', desc: 'Construir una rutina sólida y duradera' },
-                { id: 'athletic_performance', label: 'Rendimiento atlético', desc: 'Agilidad dinámica, velocidad y potencia' }
+                { id: 'lose_fat', label: 'Bajar de peso / quemar grasa corporal' },
+                { id: 'build_muscle', label: 'Tonificación muscular' },
+                { id: 'improve_strength', label: 'Fuerza muscular' },
+                { id: 'improve_mobility', label: 'Flexibilidad y movilidad' },
+                { id: 'improve_endurance', label: 'Resistencia física y vitalidad' },
+                { id: 'general_fitness', label: 'Salud integral y bienestar' }
               ].map(g => {
                 const isSelected = goals.includes(g.id as FitnessGoal);
                 const isPrimary = primaryGoal === g.id;
@@ -260,7 +258,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       <span className="font-bold text-sm text-[#20312D]">{g.label}</span>
                       {isSelected && <Check className="w-4 h-4 text-[#56B89D]" />}
                     </div>
-                    <span className="text-[11px] text-[#6F7D78] mt-1">{g.desc}</span>
                     {isSelected && (
                       <button 
                         onClick={(e) => {
@@ -491,13 +488,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: 'none', label: 'Sin limitaciones' },
-                { id: 'shoulder', label: 'Molestia en hombros' },
-                { id: 'knee', label: 'Molestia en rodillas' },
-                { id: 'back', label: 'Molestia en espalda/lumbar' },
-                { id: 'wrist', label: 'Molestia en muñecas' },
-                { id: 'ankle', label: 'Molestia en tobillos' },
-                { id: 'other', label: 'Otra sensibilidad articular' }
+                { id: 'none', label: 'Sin dolor ni molestias' },
+                { id: 'back', label: 'Espalda baja / Lumbar' },
+                { id: 'knee', label: 'Rodillas' },
+                { id: 'shoulder', label: 'Hombros' },
+                { id: 'wrist', label: 'Muñecas / Codos' },
+                { id: 'other', label: 'Cuello / Cervical' },
+                { id: 'ankle', label: 'Tobillos' }
               ].map(lim => {
                 const isSelected = limitations.includes(lim.id as PhysicalLimitation);
                 return (

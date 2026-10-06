@@ -35,9 +35,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       if (err?.code === 'auth/popup-closed-by-user') {
         setErrorMsg('Ventana de acceso cerrada antes de completar.');
       } else if (err?.code === 'auth/operation-not-allowed') {
-        setErrorMsg('El acceso con Google debe estar habilitado en la consola de Firebase.');
+        setErrorMsg('El acceso con Google debe estar habilitado en la consola de Firebase (Authentication > Sign-in method > Google).');
+      } else if (err?.code === 'auth/unauthorized-domain') {
+        setErrorMsg(`Dominio no autorizado. En Firebase Console (Authentication > Settings > Authorized domains) añade: ${window.location.hostname}`);
+      } else if (err?.code === 'auth/popup-blocked') {
+        setErrorMsg('El navegador bloqueó la ventana emergente de Google. Permití las ventanas emergentes (popups) para continuar.');
       } else {
-        setErrorMsg('No se pudo conectar con Google. Por favor intenta nuevamente.');
+        setErrorMsg(err.message || 'No se pudo conectar con Google. Por favor intenta nuevamente.');
       }
     } finally {
       setLoading(false);

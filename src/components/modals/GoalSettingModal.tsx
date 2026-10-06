@@ -21,41 +21,35 @@ interface GoalSettingModalProps {
   onClose: () => void;
 }
 
-const GOALS_LIST: { id: FitnessGoal; title: string; subtitle: string; icon: React.ElementType }[] = [
-  {
-    id: 'improve_strength',
-    title: 'Fuerza y Calistenia',
-    subtitle: 'Dominar tu propio peso corporal (flexiones, dominadas, fondos) y ganar firmeza muscular.',
-    icon: Dumbbell
-  },
+const GOALS_LIST: { id: FitnessGoal; title: string; icon: React.ElementType }[] = [
   {
     id: 'lose_fat',
-    title: 'Quemar Grasa y Definición',
-    subtitle: 'Circuitos funcionales y metabólicos de alta eficiencia para activar la quema de calorías.',
+    title: 'Bajar de peso / quemar grasa corporal',
     icon: Flame
   },
   {
     id: 'build_muscle',
-    title: 'Aumento de Masa Muscular',
-    subtitle: 'Volumen y series estructuradas para estimular la hipertrofia y densidad física.',
+    title: 'Tonificación muscular',
     icon: TrendingUp
   },
   {
     id: 'improve_mobility',
-    title: 'Movilidad y Salud Articular',
-    subtitle: 'Liberar tensiones, mejorar rango de movimiento, postura y prevenir molestias de espalda.',
+    title: 'Flexibilidad y movilidad',
     icon: Activity
   },
   {
+    id: 'improve_strength',
+    title: 'Fuerza muscular',
+    icon: Dumbbell
+  },
+  {
     id: 'improve_endurance',
-    title: 'Resistencia y Condición Física',
-    subtitle: 'Mejorar capacidad pulmonar, cardiovascular y sostener esfuerzos más prolongados.',
+    title: 'Resistencia física y vitalidad',
     icon: Clock
   },
   {
     id: 'general_fitness',
-    title: 'Salud Integral y Bienestar',
-    subtitle: 'Entrenamientos balanceados para sentirte con energía, vitalidad y constancia día a día.',
+    title: 'Salud integral y bienestar',
     icon: Sparkles
   }
 ];
@@ -131,28 +125,25 @@ export const GoalSettingModal: React.FC<GoalSettingModalProps> = ({ isOpen, onCl
                     key={g.id}
                     type="button"
                     onClick={() => setSelectedGoal(g.id)}
-                    className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-[#20312D] text-white border-[#20312D] shadow-md scale-[1.01]'
                         : 'bg-white/80 hover:bg-white text-[#20312D] border-white/90 shadow-2xs'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/15 text-[#56B89D]' : 'bg-[#DCEFE8] text-[#56B89D]'}`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-8 h-8 rounded-xl shrink-0 flex items-center justify-center ${isSelected ? 'bg-white/15 text-[#56B89D]' : 'bg-[#DCEFE8] text-[#56B89D]'}`}>
                         <Icon className="w-4 h-4" />
                       </div>
-                      {isSelected && (
-                        <span className="w-5 h-5 rounded-full bg-[#56B89D] flex items-center justify-center text-[#111A18]">
-                          <Check className="w-3 h-3 stroke-[3]" />
-                        </span>
-                      )}
+                      <h4 className="text-xs font-black leading-snug truncate">{g.title}</h4>
                     </div>
-                    <div>
-                      <h4 className="text-xs font-black leading-snug">{g.title}</h4>
-                      <p className={`text-[10px] mt-1 line-clamp-2 ${isSelected ? 'text-gray-300' : 'text-[#6F7D78]'}`}>
-                        {g.subtitle}
-                      </p>
-                    </div>
+                    {isSelected ? (
+                      <span className="w-5 h-5 rounded-full bg-[#56B89D] shrink-0 flex items-center justify-center text-[#111A18]">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </span>
+                    ) : (
+                      <span className="w-5 h-5 rounded-full border border-black/10 shrink-0" />
+                    )}
                   </button>
                 );
               })}

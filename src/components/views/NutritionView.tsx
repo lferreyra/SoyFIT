@@ -3,45 +3,59 @@ import {
   Droplet, 
   RotateCw, 
   Plus, 
-  Minus,
-  Sparkles,
-  Info,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Flame,
-  Clock,
-  CheckCircle2,
-  Salad,
-  Egg,
-  Fish,
-  UtensilsCrossed,
-  ChefHat
+  Sparkles, 
+  Info, 
+  Calendar, 
+  ChevronLeft, 
+  ChevronRight, 
+  Flame, 
+  Clock, 
+  CheckCircle2, 
+  Salad, 
+  Egg, 
+  Fish, 
+  ChefHat,
+  BookOpen
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { GlassCard } from '../common/GlassCard';
-import { t, formatCalories, formatNumber } from '../../i18n';
+import { t, formatCalories } from '../../i18n';
 import { DietaryPreferenceType, Meal } from '../../types/fitness';
 import { calculateProteinBalance } from '../../data/nutritionPlans';
+import { RecipeExplorerModal } from '../nutrition/RecipeExplorerModal';
 
 export const NutritionView: React.FC = () => {
   const { 
     nutrition, 
     addWater, 
-    resetHydration,
-    swapMeal,
-    setDietaryPreference,
-    selectChallengeDay,
-    habits
+    resetHydration, 
+    swapMeal, 
+    selectCustomRecipeForMeal,
+    setDietaryPreference, 
+    selectChallengeDay, 
+    habits 
   } = useFitness();
 
   const [expandedInstructions, setExpandedInstructions] = useState<Record<string, boolean>>({});
+  const [isRecipeExplorerOpen, setIsRecipeExplorerOpen] = useState(false);
 
   const toggleInstructions = (mealId: string) => {
     setExpandedInstructions(prev => ({ ...prev, [mealId]: !prev[mealId] }));
   };
 
   const dietOptions: { id: DietaryPreferenceType; label: string; icon: any; desc: string }[] = [
+    { 
+      id: 'pomroy', 
+      label: 'Dra. Haylie Pomroy (FMA)', 
+      icon: Sparkles, 
+      desc: 'Metabolismo Acelerado: 3 fases cíclicas (F1: Carbos & Fruta, F2: Proteína & Verdes, F3: Grasas saludables).' 
+    },
+    { 
+      id: 'dukan', 
+      label: 'Dr. Pierre Dukan', 
+      icon: Flame, 
+      desc: 'Alternancia de fases: Ataque (PP: Proteína Pura) y Crucero (PV: Proteína + Verduras seleccionadas).' 
+    },
     { 
       id: 'omnivore', 
       label: 'Omnívoro equilibrado', 
@@ -59,17 +73,11 @@ export const NutritionView: React.FC = () => {
       label: 'Vegano', 
       icon: Salad, 
       desc: '100% Proteínas vegetales completas: tempeh, lentejas, levadura nutricional y semillas.' 
-    },
-    { 
-      id: 'hiperproteico', 
-      label: 'Hiperproteico / Keto', 
-      icon: Flame, 
-      desc: 'Alta densidad proteica magra, vegetales verdes seleccionados y carbohidratos controlados para máxima saciedad y definición.' 
     }
   ];
 
   const currentDay = nutrition.selectedChallengeDay || 1;
-  const currentDiet: string = (nutrition.dietaryPreference === 'dukan_keto' ? 'hiperproteico' : nutrition.dietaryPreference) || 'omnivore';
+  const currentDiet: string = (nutrition.dietaryPreference === 'dukan_keto' || nutrition.dietaryPreference === 'hiperproteico' ? 'dukan' : nutrition.dietaryPreference) || 'pomroy';
 
   const mealTypeLabels: Record<string, string> = {
     'Breakfast': 'Desayuno',
@@ -85,16 +93,36 @@ export const NutritionView: React.FC = () => {
   const waterHabit = habits.find(h => h.id === 'h1');
   const hydrationPct = Math.min(100, Math.round((nutrition.hydrationCurrentLiters / nutrition.hydrationTargetLiters) * 100));
 
+  const handleSelectRecipeFromModal = (recipe: Meal) => {
+    // Find matching meal ID in todayMeals of same type
+    const existing = nutrition.todayMeals.find(m => m.type === recipe.type);
+    if (existing) {
+      selectCustomRecipeForMeal(existing.id, recipe);
+    }
+  };
+
   return (
     <div id="nutrition-dashboard" className="space-y-6 max-w-4xl mx-auto pb-12">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-black text-[#20312D] tracking-tight">
-          {t('nutrition.title')}
-        </h1>
-        <p className="text-sm text-[#6F7D78] mt-0.5">
-          {t('nutrition.subtitle')}
-        </p>
+      {/* Header with Title and Recetario Completo Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-black text-[#20312D] tracking-tight">
+            {t('nutrition.title')}
+          </h1>
+          <p className="text-sm text-[#6F7D78] mt-0.5">
+            {t('nutrition.subtitle')}
+          </p>
+        </div>
+
+        {/* Recipe Explorer Modal Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsRecipeExplorerOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#20312D] hover:bg-black text-white text-xs font-black shadow-xs transition-all cursor-pointer self-start sm:self-auto hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <BookOpen className="w-4 h-4 text-[#56B89D]" />
+          <span>Explorar Recetario (80+ Recetas)</span>
+        </button>
       </div>
 
       {/* 1. WATER HYDRATION HABIT TRACKER */}
@@ -189,12 +217,12 @@ export const NutritionView: React.FC = () => {
               {t('nutrition.dietaryType')}
             </span>
             <h3 className="text-xl font-black text-[#20312D]">
-              Adaptá tus recetas según tu alimentación
+              Planes Nutricionales Adaptativos
             </h3>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {dietOptions.map(option => {
             const Icon = option.icon;
             const isSelected = currentDiet === option.id;
@@ -203,15 +231,15 @@ export const NutritionView: React.FC = () => {
                 key={option.id}
                 onClick={() => setDietaryPreference(option.id)}
                 className={`
-                  p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer
+                  p-4 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer
                   ${isSelected 
-                    ? 'bg-[#20312D] border-[#20312D] text-white shadow-md' 
-                    : 'bg-white/80 border-white/90 text-[#20312D] hover:bg-white hover:border-[#56B89D]/40'
+                    ? 'bg-[#20312D] border-[#20312D] text-white shadow-md scale-[1.01]' 
+                    : 'bg-white/80 border-white/90 text-[#20312D] hover:bg-white hover:border-[#56B89D]/40 shadow-xs'
                   }
                 `}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/15 text-[#56B89D]' : 'bg-[#DCEFE8] text-[#56B89D]'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${isSelected ? 'bg-white/15 text-[#56B89D]' : 'bg-[#DCEFE8] text-[#56B89D]'}`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   {isSelected && (
@@ -222,7 +250,7 @@ export const NutritionView: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xs font-black">{option.label}</h4>
-                  <p className={`text-[10px] mt-1 line-clamp-2 ${isSelected ? 'text-gray-300' : 'text-[#6F7D78]'}`}>
+                  <p className={`text-[10px] mt-1 line-clamp-2 leading-relaxed ${isSelected ? 'text-gray-300' : 'text-[#6F7D78]'}`}>
                     {option.desc}
                   </p>
                 </div>
@@ -241,7 +269,7 @@ export const NutritionView: React.FC = () => {
                 {t('nutrition.challengeMonth')}
               </span>
               <span className="text-xs font-bold text-[#6F7D78]">
-                30 días de recetas fáciles
+                Rotación semanal para no aburrirse
               </span>
             </div>
             <h3 className="text-xl font-black text-[#20312D] mt-1">
@@ -334,11 +362,13 @@ export const NutritionView: React.FC = () => {
             />
           </div>
           <span className="text-[10px] text-[#6F7D78] block">
-            {currentDiet === 'hiperproteico' || currentDiet === 'dukan_keto'
-              ? 'Esquema Hiperproteico: Proteínas puras magras y verduras verdes seleccionadas para preservar músculo, acelerar el metabolismo y brindar saciedad prolongada.'
+            {currentDiet === 'pomroy'
+              ? 'Plan Dra. Pomroy: Rotación en 3 fases semanales (Carbos/Fruta, Proteínas/Verdes alcalinos, Grasas saludables) para confundir al metabolismo y acelerar la combustión.'
+              : currentDiet === 'dukan'
+              ? 'Plan Dr. Dukan: Alternancia de Proteína Pura (PP) y Proteínas con Verduras (PV) para saciedad máxima sin carbohidratos refinados.'
               : currentDiet === 'vegan'
                 ? 'Combinación completa de legumbres, cereales ancestrales y semillas para aportar los 9 aminoácidos esenciales.'
-                : 'La sinergia entre aminoácidos animales y vegetales optimiza la digestión intestinal y previene la sobrecarga inflamatoria.'
+                : 'La sinergia entre aminoácidos animales y vegetales optimiza la digestión intestinal y previene la inflamación.'
             }
           </span>
         </div>
@@ -346,7 +376,7 @@ export const NutritionView: React.FC = () => {
 
       {/* 5. RECIPES FOR TODAY (BREAKFAST, LUNCH, DINNER, SNACK) */}
       <GlassCard className="p-6 sm:p-7">
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
             <span className="text-[11px] font-extrabold tracking-wider text-[#56B89D] uppercase block">
               Menú completo y recetas fáciles
@@ -354,6 +384,17 @@ export const NutritionView: React.FC = () => {
             <h3 className="text-2xl font-black text-[#20312D]">
               {t('nutrition.todayMeals')} (Día {currentDay})
             </h3>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsRecipeExplorerOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-white border border-black/10 hover:border-[#56B89D] text-[#20312D] text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#56B89D]" />
+              <span>Ver catálogo completo</span>
+            </button>
           </div>
         </div>
 
@@ -389,6 +430,11 @@ export const NutritionView: React.FC = () => {
                           <span className="px-3 py-1 rounded-full bg-[#DCEFE8] text-[#20312D] text-[10px] font-black uppercase tracking-wider">
                             {mealTypeLabels[meal.type] || meal.type}
                           </span>
+                          {meal.dietPhase && (
+                            <span className="px-2.5 py-1 rounded-full bg-[#F5D5C2] text-[#20312D] text-[10px] font-black">
+                              {meal.dietPhase}
+                            </span>
+                          )}
                           <span className="flex items-center gap-1 text-xs font-bold text-[#6F7D78]">
                             <Clock className="w-3.5 h-3.5 text-[#56B89D]" />
                             {meal.prepTimeMinutes} min
@@ -398,11 +444,11 @@ export const NutritionView: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Swap Button */}
+                        {/* Swap Button (cycles through all recipes of this type!) */}
                         <button
                           onClick={() => swapMeal(meal.id)}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-bold text-[#6F7D78] hover:text-[#20312D] hover:border-[#56B89D] transition-colors shrink-0 shadow-2xs cursor-pointer"
-                          title="Generar otra variante de receta"
+                          title="Rotar a la siguiente variante de receta"
                         >
                           <RotateCw className="w-3.5 h-3.5 text-[#56B89D]" />
                           <span>{t('nutrition.swapMeal')}</span>
@@ -500,6 +546,13 @@ export const NutritionView: React.FC = () => {
           {t('nutrition.disclaimer')}
         </div>
       </div>
+
+      {/* Recipe Explorer Modal */}
+      <RecipeExplorerModal
+        isOpen={isRecipeExplorerOpen}
+        onClose={() => setIsRecipeExplorerOpen(false)}
+        onSelectRecipeForMeal={handleSelectRecipeFromModal}
+      />
     </div>
   );
 };

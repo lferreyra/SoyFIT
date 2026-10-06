@@ -8,15 +8,15 @@ import {
   CheckCircle2, 
   Circle, 
   ChevronRight, 
-  Zap, 
+  ChevronDown,
   Footprints, 
   Heart,
-  ShieldCheck,
-  Target
+  ShieldCheck
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { GlassCard } from '../common/GlassCard';
 import { t, CATEGORY_LABELS_ES, INTENSITY_LABELS_ES, formatNumber, formatCalories } from '../../i18n';
+import { renderHabitIcon } from '../common/HabitIcons';
 
 export const HomeView: React.FC = () => {
   const { 
@@ -25,7 +25,6 @@ export const HomeView: React.FC = () => {
     updateReadiness, 
     todayWorkout, 
     startWorkout, 
-    launchQuickWorkout, 
     habits, 
     toggleHabit, 
     gamification, 
@@ -33,14 +32,16 @@ export const HomeView: React.FC = () => {
     setIsWeeklyReviewOpen,
     isAdmin,
     setIsAdminModalOpen,
-    setIsLandingCarouselOpen,
-    setIsGoalModalOpen
+    setIsLandingCarouselOpen
   } = useFitness();
 
   const [isReadinessCheckinOpen, setIsReadinessCheckinOpen] = useState(false);
   const [selectedFeeling, setSelectedFeeling] = useState<'poor' | 'okay' | 'good' | 'great'>('good');
   const [selectedEnergy, setSelectedEnergy] = useState<1 | 2 | 3 | 4 | 5>(4);
   const [selectedSoreness, setSelectedSoreness] = useState<'none' | 'light' | 'moderate' | 'high'>('light');
+
+  // Habits accordion state: expanded by default, can be toggled
+  const [isHabitsOpen, setIsHabitsOpen] = useState(true);
 
   const handleSaveReadiness = () => {
     updateReadiness(selectedFeeling, selectedEnergy, selectedSoreness);
@@ -86,6 +87,9 @@ export const HomeView: React.FC = () => {
     return 'Atleta';
   };
 
+  const completedHabitsCount = habits.filter(h => h.completed).length;
+  const habitCompletionPct = Math.round((completedHabitsCount / habits.length) * 100);
+
   return (
     <div id="home-dashboard" className="space-y-6 max-w-4xl mx-auto pb-12">
       {/* Header Greeting */}
@@ -115,7 +119,7 @@ export const HomeView: React.FC = () => {
             <button
               onClick={() => setIsAdminModalOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#16221F] hover:bg-[#20312D] border border-[#56B89D]/40 text-xs font-extrabold text-[#56B89D] shadow-xs transition-all cursor-pointer"
-              title="Panel de Administración (lucas.ferreyra@gmail.com)"
+              title="Panel de Administración"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-[#56B89D]" />
               <span>Admin</span>
@@ -134,34 +138,8 @@ export const HomeView: React.FC = () => {
         </div>
       </div>
 
-      {/* USER GOAL & ROUTINE DEFINITION STRIP */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white/80 border border-white shadow-2xs">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#DCEFE8] text-[#56B89D] flex items-center justify-center shrink-0 shadow-2xs">
-            <Target className="w-5 h-5 text-[#56B89D]" />
-          </div>
-          <div>
-            <div className="text-xs font-black text-[#20312D] flex items-center gap-2">
-              <span>Objetivo de rutina: <strong className="text-[#56B89D] capitalize">{user.primaryGoal ? user.primaryGoal.replace(/_/g, ' ') : 'Fuerza y Calistenia'}</strong></span>
-              <span className="text-[10px] text-[#6F7D78] hidden sm:inline">• {user.trainingDaysPerWeek || 4} días/sem • {user.preferredDurationMinutes || 30} min</span>
-            </div>
-            <p className="text-[11px] text-[#6F7D78] font-medium">
-              Tus entrenamientos diarios se calibran automáticamente para esta meta
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsGoalModalOpen(true)}
-          className="self-start sm:self-auto px-4 py-2 rounded-xl bg-[#20312D] hover:bg-black text-white text-xs font-extrabold transition-all cursor-pointer shrink-0"
-        >
-          Definir objetivos
-        </button>
-      </div>
-
-      {/* CORE PRODUCT PRINCIPLE: WHAT SHOULD I DO TODAY? */}
-      <div className="relative rounded-[32px] overflow-hidden bg-gradient-to-br from-[#20312D] to-[#14201D] text-white p-7 sm:p-9 shadow-[0_20px_50px_-15px_rgba(32,49,45,0.25)]">
+      {/* CORE PRODUCT HERO: WHAT SHOULD I DO TODAY? */}
+      <div className="relative rounded-[32px] overflow-hidden bg-gradient-to-br from-[#20312D] to-[#14201D] text-white p-7 sm:p-9 shadow-[0_20px_50px_-15px_rgba(32,49,45,0.25)] border border-white/10">
         {/* Subtle decorative background glow */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#56B89D]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-10 w-60 h-60 bg-[#E9A06D]/15 rounded-full blur-2xl pointer-events-none" />
@@ -210,74 +188,37 @@ export const HomeView: React.FC = () => {
             </div>
           </div>
 
-          {/* Large Start Button */}
+          {/* REFINED GEMINI-AI STYLE GLOWING START BUTTON */}
           <div className="shrink-0 flex flex-col items-center">
-            <button
-              id="home-start-today-workout-btn"
-              onClick={() => startWorkout(todayWorkout)}
-              className="w-full md:w-auto px-8 py-5 rounded-2xl bg-[#56B89D] hover:bg-[#48A58C] text-[#14201D] font-black text-base shadow-lg shadow-[#56B89D]/25 transition-all flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <Play className="w-5 h-5 fill-current" />
-              <span>{t('workout.start')}</span>
-            </button>
-            <span className="text-[10px] text-white/60 tracking-wider uppercase mt-2">
-              {todayWorkout.exercises.length} ejercicios calibrados
+            <div className="relative p-[2px] rounded-[24px] overflow-hidden group">
+              {/* Animated glowing border beam inspired by Gemini AI */}
+              <div className="gemini-border-glow" />
+
+              <button
+                id="home-start-today-workout-btn"
+                onClick={() => startWorkout(todayWorkout)}
+                className="relative z-10 px-8 py-5 rounded-[22px] bg-[#16221F]/95 hover:bg-[#1C2C28] text-white transition-all flex items-center justify-center gap-3.5 cursor-pointer shadow-xl shadow-black/30 backdrop-blur-xl group-hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#56B89D] to-[#3B967D] text-[#14201D] flex items-center justify-center shrink-0 shadow-md shadow-[#56B89D]/30 group-hover:rotate-6 transition-transform">
+                  <Play className="w-5 h-5 fill-current ml-0.5 text-[#14201D]" />
+                </div>
+                <div className="text-left">
+                  <span className="block text-sm font-black tracking-wide text-white group-hover:text-[#DCEFE8] transition-colors">
+                    {t('workout.start')}
+                  </span>
+                  <span className="block text-[11px] text-[#A8D5C7] font-semibold">
+                    {todayWorkout.estimatedDurationMinutes} min • {todayWorkout.exercises.length} movimientos
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#56B89D] group-hover:translate-x-1 transition-transform ml-1" />
+              </button>
+            </div>
+            <span className="text-[10px] text-white/50 tracking-wider uppercase mt-2.5">
+              Rutina adaptada a tu perfil
             </span>
           </div>
         </div>
       </div>
-
-      {/* QUICK WORKOUT STRIP: 5, 10, 15 MIN */}
-      <GlassCard className="p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <span className="text-[10px] font-extrabold tracking-widest text-[#56B89D] uppercase block">
-              {t('home.quickWorkoutSubtitle')}
-            </span>
-            <h3 className="text-base font-extrabold text-[#20312D]">
-              {t('home.quickWorkout')}
-            </h3>
-          </div>
-          <span className="text-xs text-[#6F7D78]">
-            "Solo tengo..."
-          </span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2.5">
-          <button
-            onClick={() => launchQuickWorkout(5)}
-            className="group p-3 sm:p-4 rounded-2xl bg-white/90 border border-black/5 hover:border-[#56B89D] hover:shadow-xs transition-all text-left flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-[#20312D]">5 MIN</span>
-              <Zap className="w-3.5 h-3.5 text-[#56B89D] group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="text-[10px] text-[#6F7D78] mt-1 line-clamp-1">Movilidad y calma</span>
-          </button>
-
-          <button
-            onClick={() => launchQuickWorkout(10)}
-            className="group p-3 sm:p-4 rounded-2xl bg-white/90 border border-black/5 hover:border-[#56B89D] hover:shadow-xs transition-all text-left flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-[#20312D]">10 MIN</span>
-              <Zap className="w-3.5 h-3.5 text-[#E9A06D] group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="text-[10px] text-[#6F7D78] mt-1 line-clamp-1">Circuito de cuerpo completo</span>
-          </button>
-
-          <button
-            onClick={() => launchQuickWorkout(15)}
-            className="group p-3 sm:p-4 rounded-2xl bg-white/90 border border-black/5 hover:border-[#56B89D] hover:shadow-xs transition-all text-left flex flex-col justify-between cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-[#20312D]">15 MIN</span>
-              <Zap className="w-3.5 h-3.5 text-[#56B89D] group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="text-[10px] text-[#6F7D78] mt-1 line-clamp-1">Calistenia funcional</span>
-          </button>
-        </div>
-      </GlassCard>
 
       {/* TODAY'S READINESS & TODAY'S PROGRESS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
@@ -439,48 +380,76 @@ export const HomeView: React.FC = () => {
         </div>
       </div>
 
-      {/* TODAY'S HABITS CHECKLIST */}
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      {/* TODAY'S HABITS COLLAPSIBLE ACCORDION WITH RICH ICONIC GRAPHICS */}
+      <GlassCard className="p-5 sm:p-6 transition-all">
+        {/* Accordion Header */}
+        <button
+          type="button"
+          onClick={() => setIsHabitsOpen(!isHabitsOpen)}
+          className="w-full flex items-center justify-between text-left cursor-pointer group"
+        >
           <div>
             <span className="text-[11px] font-extrabold tracking-wider text-[#56B89D] uppercase block">
-              Constancia diaria
+              Hábitos de salud
             </span>
-            <h3 className="text-xl font-black text-[#20312D]">
-              {t('home.todayHabits')}
+            <h3 className="text-xl font-black text-[#20312D] group-hover:text-[#3B967D] transition-colors">
+              Constancia diaria
             </h3>
           </div>
-          <span className="text-xs font-bold text-[#6F7D78]">
-            {habits.filter(h => h.completed).length} de {habits.length} completados
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-          {habits.map(habit => (
-            <button
-              key={habit.id}
-              onClick={() => toggleHabit(habit.id)}
-              className={`
-                p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer
-                ${habit.completed 
-                  ? 'bg-[#DCEFE8]/60 border-[#56B89D]/40 text-[#20312D]' 
-                  : 'bg-white/70 border-white/90 text-[#6F7D78] hover:bg-white'
-                }
-              `}
-            >
-              <div className="flex items-center gap-3">
-                {habit.completed ? (
-                  <CheckCircle2 className="w-5 h-5 text-[#56B89D] shrink-0" />
-                ) : (
-                  <Circle className="w-5 h-5 text-gray-300 shrink-0" />
-                )}
-                <span className={`text-xs font-bold ${habit.completed ? 'text-[#20312D] line-through opacity-85' : 'text-[#20312D]'}`}>
-                  {habit.title}
-                </span>
-              </div>
-            </button>
-          ))}
-        </div>
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 rounded-full bg-[#DCEFE8] text-[#20312D] text-xs font-black shadow-2xs">
+              {completedHabitsCount} de {habits.length} ({habitCompletionPct}%)
+            </span>
+            <div className={`w-8 h-8 rounded-xl bg-black/5 flex items-center justify-center transition-transform duration-300 ${isHabitsOpen ? 'rotate-180' : ''}`}>
+              <ChevronDown className="w-4 h-4 text-[#20312D]" />
+            </div>
+          </div>
+        </button>
+
+        {/* Collapsible Content */}
+        {isHabitsOpen && (
+          <div className="mt-4 pt-4 border-t border-black/5 animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {habits.map(habit => (
+                <button
+                  key={habit.id}
+                  onClick={() => toggleHabit(habit.id)}
+                  className={`
+                    p-4 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer group/card
+                    ${habit.completed 
+                      ? 'bg-[#DCEFE8]/70 border-[#56B89D]/40 text-[#20312D] shadow-xs' 
+                      : 'bg-white/80 border-white/90 text-[#20312D] hover:bg-white hover:border-[#56B89D]/30 shadow-2xs'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3.5">
+                    {/* Rich custom iconic graphic */}
+                    <div className="p-1 rounded-xl bg-white/60 border border-white/80 shrink-0 group-hover/card:scale-105 transition-transform">
+                      {renderHabitIcon(habit.id, habit.completed)}
+                    </div>
+                    <div>
+                      <span className={`text-xs font-black block leading-snug ${habit.completed ? 'line-through text-[#20312D]/70' : 'text-[#20312D]'}`}>
+                        {habit.title}
+                      </span>
+                      <span className="text-[10px] text-[#6F7D78] font-bold block mt-0.5">
+                        Meta: {habit.targetValue} {habit.unit}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 ml-2">
+                    {habit.completed ? (
+                      <CheckCircle2 className="w-5 h-5 text-[#56B89D]" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-gray-300 group-hover/card:text-[#56B89D]" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </GlassCard>
 
       {/* FIT COACH CONTEXTUAL HIGHLIGHT */}

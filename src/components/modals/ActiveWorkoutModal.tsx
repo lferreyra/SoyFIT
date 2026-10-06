@@ -26,15 +26,16 @@ import { CATEGORY_LABELS_ES } from '../../i18n';
 import { RestRecoveryClock } from '../workout/RestRecoveryClock';
 import { ExerciseProgressClock } from '../workout/ExerciseProgressClock';
 import { playTransitionBeep } from '../../services/reminderSound';
+import { getAssetUrl } from '../../utils/assets';
 
-const AILMENT_OPTIONS: { id: PhysicalLimitation; label: string; icon: string; desc: string }[] = [
-  { id: 'back', label: 'Zona Lumbar / Espalda baja', icon: '🛡️', desc: 'Protocolo Stuart McGill: discos protegidos y neutralidad espinal.' },
-  { id: 'knee', label: 'Rodillas / Articulaciones', icon: '🦵', desc: 'Sin impacto axial; sentadilla a cajón o puente de glúteos.' },
-  { id: 'shoulder', label: 'Hombros / Manguito rotador', icon: '🦾', desc: 'Empujes a 45° cerrados y protección subacromial.' },
-  { id: 'neck', label: 'Cuello / Cervicales', icon: '🧣', desc: 'Sin flexión forzada ni tracción en trapecios.' },
-  { id: 'wrist', label: 'Muñecas / Codos', icon: '🖐️', desc: 'Apoyo neutro en puños o banco sin hiperextensión.' },
-  { id: 'hip', label: 'Caderas / Tobillos', icon: '🦶', desc: 'Ajuste de profundidad y dorsiflexión controlada.' },
-  { id: 'none', label: 'Sin dolor (100% operativo)', icon: '✨', desc: 'Entrenamiento completo sin restricciones articulares.' },
+const AILMENT_OPTIONS: { id: PhysicalLimitation; label: string; icon: string }[] = [
+  { id: 'none', label: 'Sin dolor ni molestias', icon: '✨' },
+  { id: 'back', label: 'Espalda baja / Lumbar', icon: '🛡️' },
+  { id: 'knee', label: 'Rodillas', icon: '🦵' },
+  { id: 'shoulder', label: 'Hombros', icon: '🦾' },
+  { id: 'neck', label: 'Cuello / Cervical', icon: '🧣' },
+  { id: 'wrist', label: 'Muñecas / Codos', icon: '🖐️' },
+  { id: 'hip', label: 'Caderas / Tobillos', icon: '🦶' },
 ];
 
 const WARMUP_STEPS = [
@@ -43,7 +44,7 @@ const WARMUP_STEPS = [
     name: 'Gato-Camello fluido (Cat-Cow)',
     desc: '8 a 10 ciclos lentos para lubricar discos espinales y descomprimir columna.',
     duration: '45s',
-    imageUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80'
+    imageUrl: '/src/assets/images/postura_gato_1791287487776.jpg'
   },
   {
     number: 2,
@@ -504,7 +505,7 @@ export const ActiveWorkoutModal: React.FC = () => {
                     <p className="text-[11px] text-[#6F7D78]">
                       Tocá una zona para protegerla inmediatamente. Adaptamos los ejercicios en tiempo real para evitar dolor y cuidar tu salud:
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
                       {AILMENT_OPTIONS.map(opt => {
                         const isSelected = opt.id === 'none'
                           ? (!user?.limitations || user.limitations.includes('none') || user.limitations.length === 0)
@@ -515,21 +516,16 @@ export const ActiveWorkoutModal: React.FC = () => {
                             key={opt.id}
                             type="button"
                             onClick={() => handleToggleAilment(opt.id)}
-                            className={`p-2.5 rounded-2xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
+                            className={`p-2.5 rounded-2xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
                               isSelected
                                 ? 'bg-[#20312D] text-white border-[#20312D] shadow-xs'
                                 : 'bg-white/70 hover:bg-white text-[#20312D] border-black/5'
                             }`}
                           >
-                            <span className="text-lg shrink-0 mt-0.5">{opt.icon}</span>
-                            <div className="min-w-0 flex-1">
-                              <span className={`text-xs font-black block truncate ${isSelected ? 'text-white' : 'text-[#20312D]'}`}>
-                                {opt.label}
-                              </span>
-                              <span className={`text-[10px] block leading-tight mt-0.5 ${isSelected ? 'text-[#DCEFE8]' : 'text-[#6F7D78]'}`}>
-                                {opt.desc}
-                              </span>
-                            </div>
+                            <span className="text-base shrink-0">{opt.icon}</span>
+                            <span className={`text-xs font-bold truncate ${isSelected ? 'text-white' : 'text-[#20312D]'}`}>
+                              {opt.label}
+                            </span>
                           </button>
                         );
                       })}
@@ -573,7 +569,7 @@ export const ActiveWorkoutModal: React.FC = () => {
                       >
                         {/* Imagen ilustrativa de fondo que se ajusta exactamente al tamaño de la sección */}
                         <img
-                          src={step.imageUrl}
+                          src={getAssetUrl(step.imageUrl)}
                           alt={step.name}
                           className="absolute inset-0 w-full h-full object-cover"
                           referrerPolicy="no-referrer"
@@ -630,9 +626,9 @@ export const ActiveWorkoutModal: React.FC = () => {
                           </div>
 
                           {/* Exercise Thumbnail image adjusted to section */}
-                          <div className="w-12 h-12 rounded-xl overflow-hidden relative shrink-0 border border-black/5">
+                          <div className="w-12 h-12 rounded-xl overflow-hidden relative shrink-0 border border-black/5 bg-[#14201D]">
                             <img
-                              src={full?.imageUrl || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80'}
+                              src={getAssetUrl(full?.imageUrl || 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&w=800&q=80')}
                               alt={ex.exerciseName}
                               className="w-full h-full object-cover"
                               referrerPolicy="no-referrer"
@@ -668,16 +664,42 @@ export const ActiveWorkoutModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Primary Action Button: Start Workout */}
+            {/* Elevated Primary Action Button: Start Workout with Gemini AI Glowing Border Animation */}
             <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => setIsPreviewStage(false)}
-                className="w-full py-4 px-6 rounded-2xl bg-[#20312D] hover:bg-black text-white font-black text-sm sm:text-base shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer active:scale-[0.99]"
-              >
-                <Play className="w-5 h-5 text-[#56B89D] fill-[#56B89D]" />
-                <span>Comenzar entrenamiento</span>
-              </button>
+              <div className="relative group p-[1.5px] rounded-2xl overflow-hidden shadow-lg transition-transform active:scale-[0.99] cursor-pointer">
+                {/* Rotating conic light beam around the border (Gemini AI effect) */}
+                <div className="gemini-border-glow" />
+
+                {/* Subtle ambient glow behind button */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#56B89D]/20 via-[#A8D5C7]/15 to-[#E9A06D]/20 rounded-2xl blur-xs pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Inner button container */}
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewStage(false)}
+                  className="relative z-10 w-full py-3.5 px-5 rounded-[14.5px] bg-[#172421] group-hover:bg-[#1D2E2A] text-white flex items-center justify-between transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#56B89D] to-[#3B967D] text-[#14201D] flex items-center justify-center shadow-md shrink-0">
+                      <Play className="w-4 h-4 fill-current ml-0.5" />
+                    </div>
+                    <div className="text-left">
+                      <span className="block font-black text-sm text-white tracking-tight leading-snug group-hover:text-[#DCEFE8] transition-colors">
+                        Comenzar entrenamiento
+                      </span>
+                      <span className="block text-[11px] text-gray-400 font-semibold leading-tight">
+                        Flujo automático manos libres
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-xs font-black text-[#56B89D] bg-white/5 group-hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-colors">
+                    <Sparkles className="w-3.5 h-3.5 text-[#E9A06D] animate-pulse" />
+                    <span>Iniciar</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-[#56B89D] group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -752,6 +774,8 @@ export const ActiveWorkoutModal: React.FC = () => {
                 targetReps={currentExercise.targetReps}
                 briefInstruction={fullExerciseData?.instructions?.[0]}
                 safetyNote={currentExercise.notes || fullExerciseData?.safetyNotes}
+                instructions={fullExerciseData?.instructions}
+                commonMistakes={fullExerciseData?.commonMistakes}
                 imageUrl={fullExerciseData?.imageUrl}
                 isPaused={isPaused}
                 onTogglePause={() => setIsPaused(prev => !prev)}

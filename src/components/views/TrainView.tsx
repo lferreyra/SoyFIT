@@ -11,13 +11,15 @@ import {
   ShieldCheck,
   Target,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 import { useFitness } from '../../context/FitnessContext';
 import { GlassCard, GlassPill } from '../common/GlassCard';
 import { EXERCISE_LIBRARY } from '../../data/exerciseLibrary';
 import { Exercise } from '../../types/fitness';
 import { t, CATEGORY_LABELS_ES, DIFFICULTY_LABELS_ES, formatCalories } from '../../i18n';
+import { getAssetUrl } from '../../utils/assets';
 
 export const TrainView: React.FC = () => {
   const { 
@@ -111,6 +113,58 @@ export const TrainView: React.FC = () => {
           {t('train.subtitle')}
         </p>
       </div>
+
+      {/* QUICK WORKOUT STRIP: 5, 10, 15 MIN (AT THE TOP OF TRAIN VIEW) */}
+      <GlassCard className="p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <span className="text-[10px] font-extrabold tracking-widest text-[#56B89D] uppercase block">
+              {t('home.quickWorkoutSubtitle')}
+            </span>
+            <h3 className="text-base font-extrabold text-[#20312D]">
+              {t('home.quickWorkout')}
+            </h3>
+          </div>
+          <span className="text-xs text-[#6F7D78] font-medium">
+            "Solo tengo..."
+          </span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2.5">
+          <button
+            onClick={() => launchQuickWorkout(5)}
+            className="group p-3 sm:p-4 rounded-2xl bg-white/90 border border-black/5 hover:border-[#56B89D] hover:shadow-xs transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-[#20312D]">5 MIN</span>
+              <Zap className="w-3.5 h-3.5 text-[#56B89D] group-hover:scale-110 transition-transform" />
+            </div>
+            <span className="text-[10px] text-[#6F7D78] mt-1 line-clamp-1">Movilidad y calma</span>
+          </button>
+
+          <button
+            onClick={() => launchQuickWorkout(10)}
+            className="group p-3 sm:p-4 rounded-2xl bg-white/90 border border-black/5 hover:border-[#56B89D] hover:shadow-xs transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-[#20312D]">10 MIN</span>
+              <Zap className="w-3.5 h-3.5 text-[#E9A06D] group-hover:scale-110 transition-transform" />
+            </div>
+            <span className="text-[10px] text-[#6F7D78] mt-1 line-clamp-1">Circuito full body</span>
+          </button>
+
+          <button
+            onClick={() => launchQuickWorkout(15)}
+            className="group p-3 sm:p-4 rounded-2xl bg-white/90 border border-black/5 hover:border-[#56B89D] hover:shadow-xs transition-all text-left flex flex-col justify-between cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-[#20312D]">15 MIN</span>
+              <Zap className="w-3.5 h-3.5 text-[#56B89D] group-hover:scale-110 transition-transform" />
+            </div>
+            <span className="text-[10px] text-[#6F7D78] mt-1 line-clamp-1">Calistenia funcional</span>
+          </button>
+        </div>
+      </GlassCard>
 
       {/* TODAY'S FEATURED WORKOUT HERO */}
       <GlassCard className="p-6 sm:p-7 bg-white/90">
@@ -436,7 +490,7 @@ export const TrainView: React.FC = () => {
             >
               <div className="h-32 relative overflow-hidden bg-gray-100">
                 <img
-                  src={exercise.imageUrl}
+                  src={getAssetUrl(exercise.imageUrl)}
                   alt={exercise.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
@@ -563,7 +617,7 @@ export const TrainView: React.FC = () => {
 
             <div className="h-44 rounded-2xl overflow-hidden shadow-xs">
               <img
-                src={selectedExerciseForDetail.imageUrl}
+                src={getAssetUrl(selectedExerciseForDetail.imageUrl)}
                 alt={selectedExerciseForDetail.name}
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"

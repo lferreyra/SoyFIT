@@ -39,7 +39,7 @@ import {
   getExerciseById
 } from '../services/adaptiveEngine';
 import { PROGRESSION_PATHWAYS } from '../data/exerciseLibrary';
-import { getMealPlanForDay } from '../data/nutritionPlans';
+import { getMealPlanForDay, getAllAvailableRecipes } from '../data/nutritionPlans';
 import { 
   auth, 
   logOut, 
@@ -199,6 +199,7 @@ interface FitnessContextType {
   addWater: (amountLiters: number) => void;
   resetHydration: () => void;
   swapMeal: (mealId: string) => void;
+  selectCustomRecipeForMeal: (mealId: string, recipe: Meal) => void;
   setDietaryPreference: (diet: DietaryPreferenceType) => void;
   selectChallengeDay: (day: number) => void;
   sendCoachMessage: (userText: string) => void;
@@ -761,23 +762,35 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const swapMeal = (mealId: string) => {
     setNutrition(prev => {
-      const day = prev.selectedChallengeDay || 1;
-      const alternateDay = ((day + 1) % 30) + 1;
-      const altPlan = getMealPlanForDay(alternateDay, prev.dietaryPreference || 'omnivore');
-      
       const currentMeal = prev.todayMeals.find(m => m.id === mealId);
       if (!currentMeal) return prev;
 
-      let replacement: Meal = altPlan.meals.lunch;
-      if (currentMeal.type === 'Breakfast') replacement = altPlan.meals.breakfast;
-      else if (currentMeal.type === 'Dinner') replacement = altPlan.meals.dinner;
-      else if (currentMeal.type === 'Snack') replacement = altPlan.meals.snack;
+      const allRecipes = getAllAvailableRecipes();
+      // Filter by the same meal type (Breakfast, Lunch, Dinner, Snack)
+      const matchingType = allRecipes.filter(r => r.type === currentMeal.type);
+      if (matchingType.length === 0) return prev;
+
+      // Find current index and pick next one in rotation
+      const currentIndex = matchingType.findIndex(r => 
+        r.name.trim().toLowerCase() === currentMeal.name.trim().toLowerCase() || r.id === currentMeal.id
+      );
+      const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % matchingType.length : 0;
+      const replacement = matchingType[nextIndex];
 
       return {
         ...prev,
         todayMeals: prev.todayMeals.map(m => m.id === mealId ? { ...replacement, id: `swap-${Date.now()}` } : m)
       };
     });
+  };
+
+  const selectCustomRecipeForMeal = (mealId: string, recipe: Meal) => {
+    setNutrition(prev => ({
+      ...prev,
+      todayMeals: prev.todayMeals.map(m => 
+        m.id === mealId || m.type === recipe.type ? { ...recipe, id: `custom-${Date.now()}` } : m
+      )
+    }));
   };
 
   const sendCoachMessage = (userText: string) => {
@@ -871,12 +884,14 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const dismissReminder = () => {
     setActiveReminder(null);
+    localStorage.setItem(getScopedKey('last_hydration_reminder'), String(Date.now()));
   };
 
   const snoozeReminder = (minutes: number = 15) => {
     setActiveReminder(null);
     const snoozeUntil = Date.now() + minutes * 60 * 1000;
     localStorage.setItem(`${STORAGE_KEY}_snooze_until`, String(snoozeUntil));
+    localStorage.setItem(getScopedKey('last_hydration_reminder'), String(Date.now()));
   };
 
   const triggerTestReminder = (type: 'hydration' | 'workout') => {
@@ -943,6 +958,9 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Periodic Daily Reminders Engine (Hydration & Workout Schedules)
   useEffect(() => {
     const checkReminders = () => {
+      // Never show reminders while user is viewing the landing carousel or auth flow
+      if (isLandingCarouselOpen || isAuthModalOpen) return;
+
       const prefs = user.reminderPreferences || DEFAULT_REMINDER_PREFERENCES;
       if (!prefs.enabled) return;
 
@@ -968,7 +986,14 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
           // Only remind if hydration goal has not been reached yet
           if (currentWater < targetWater) {
-            const lastHydrationTime = Number(localStorage.getItem(getScopedKey('last_hydration_reminder')) || 0);
+            const rawLastHydration = localStorage.getItem(getScopedKey('last_hydration_reminder'));
+            // If never recorded before (first moment/launch), establish the baseline NOW and do not trigger immediately
+            if (!rawLastHydration) {
+              localStorage.setItem(getScopedKey('last_hydration_reminder'), String(Date.now()));
+              return;
+            }
+
+            const lastHydrationTime = Number(rawLastHydration);
             const intervalMs = (prefs.hydrationIntervalHours || 2) * 60 * 60 * 1000;
 
             if (Date.now() - lastHydrationTime >= intervalMs) {
@@ -1059,7 +1084,7 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
     checkReminders();
     const intervalId = setInterval(checkReminders, 30000);
     return () => clearInterval(intervalId);
-  }, [user, nutrition, workoutHistory, activeWorkout, todayWorkout]);
+  }, [user, nutrition, workoutHistory, activeWorkout, todayWorkout, isLandingCarouselOpen, isAuthModalOpen]);
 
   return (
     <FitnessContext.Provider value={{
@@ -1106,6 +1131,7 @@ export const FitnessProvider: React.FC<{ children: React.ReactNode }> = ({ child
       addWater,
       resetHydration,
       swapMeal,
+      selectCustomRecipeForMeal,
       setDietaryPreference,
       selectChallengeDay,
       sendCoachMessage,
