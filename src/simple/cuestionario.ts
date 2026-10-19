@@ -41,7 +41,7 @@ export const PASOS: Paso[] = [
     tipo: 'opciones',
     campo: 'sexo',
     titulo: 'Plan de calistenia en casa',
-    subtitulo: 'Respondé 1 minuto de preguntas y armamos tu rutina. Para empezar, ¿sos...?',
+    subtitulo: 'Respondé 1 minuto de preguntas y armamos tu rutina. Para empezar, ¿sos…?',
     opciones: [
       { valor: 'mujer', texto: 'Mujer' },
       { valor: 'hombre', texto: 'Hombre' },

@@ -7,6 +7,7 @@ import { AppSimple } from './AppSimple';
 import { esVistaPrevia, leerCompras, leerRespuestas, useUsuario } from './estado';
 import { linkDePago, PRODUCTOS, ProductoId } from './oferta';
 import { Logo } from './Logo';
+import { Portada } from './Portada';
 
 export const Raiz: React.FC = () => {
   const enApp = location.pathname.startsWith('/app');
@@ -31,7 +32,7 @@ const ConAcceso: React.FC = () => {
 };
 
 const Cargando = () => (
-  <div className="min-h-screen flex items-center justify-center text-[#6F7D78]">Cargando…</div>
+  <div className="min-h-screen flex items-center justify-center text-[var(--k-muted)]">Cargando…</div>
 );
 
 const SinCompra: React.FC<{ email: string }> = ({ email }) => {
@@ -39,12 +40,12 @@ const SinCompra: React.FC<{ email: string }> = ({ email }) => {
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-center text-center">
       <h1 className="text-2xl font-extrabold">No encontramos tu compra</h1>
-      <p className="text-[#6F7D78] mt-3">
-        Entraste con <span className="font-bold text-[#20312D]">{email}</span>. Si pagaste con otro mail, cerrá sesión y entrá con ese.
+      <p className="text-[var(--k-muted)] mt-3">
+        Entraste con <span className="font-bold text-[var(--k-ink)]">{email}</span>. Si pagaste con otro mail, cerrá sesión y entrá con ese.
         Si acabás de pagar, esperá un minuto y recargá.
       </p>
-      {link && <a href={link} className="mt-8 py-4 rounded-2xl bg-[#56B89D] text-white font-bold">Conseguir el programa</a>}
-      <button onClick={() => import('../lib/firebase').then(m => m.logOut())} className="mt-3 py-4 rounded-2xl bg-white font-bold">
+      {link && <a href={link} className="mt-8 py-4 rounded-2xl bg-[var(--k-accent)] text-[var(--k-on-accent)] font-bold">Conseguir el programa</a>}
+      <button onClick={() => import('../lib/firebase').then(m => m.logOut())} className="mt-3 py-4 rounded-2xl bg-[var(--k-surface)] font-bold">
         Cerrar sesión
       </button>
     </div>
@@ -80,31 +81,32 @@ const Acceso: React.FC = () => {
     }
   };
 
-  const claseInput = 'mt-1 w-full px-4 py-4 rounded-2xl bg-white font-semibold outline-none focus:ring-2 focus:ring-[#56B89D]';
+  const claseInput = 'mt-1 w-full px-4 py-4 rounded-2xl bg-[var(--k-surface)] font-semibold outline-none focus:ring-2 focus:ring-[var(--k-accent)]';
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-center py-10">
+    <Portada foto="/ejercicios/birddog.jpg" className="min-h-screen">
+    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-end py-10">
       <div className="mb-8">
         <Logo size={36} />
       </div>
       <h1 className="text-2xl font-extrabold text-center">{modo === 'crear' ? 'Creá tu acceso' : 'Entrá a tu programa'}</h1>
-      <p className="text-[#6F7D78] text-center mt-2">Usá el mismo mail con el que pagaste.</p>
+      <p className="text-[var(--k-muted)] text-center mt-2">Usá el mismo mail con el que pagaste.</p>
 
       <form onSubmit={enviar} className="mt-8 space-y-4">
-        <label className="block text-sm font-semibold text-[#6F7D78]">Mail
+        <label className="block text-sm font-semibold text-[var(--k-muted)]">Mail
           <input className={claseInput} type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value.trim())} />
         </label>
-        <label className="block text-sm font-semibold text-[#6F7D78]">Contraseña
+        <label className="block text-sm font-semibold text-[var(--k-muted)]">Contraseña
           <input className={claseInput} type="password" autoComplete={modo === 'crear' ? 'new-password' : 'current-password'} value={clave} onChange={e => setClave(e.target.value)} />
         </label>
         {error && <p className="text-sm text-red-700">{error}</p>}
-        {aviso && <p className="text-sm text-[#2f7d66]">{aviso}</p>}
-        <button disabled={enviando || !email || !clave} className="w-full py-4 rounded-2xl bg-[#20312D] text-white font-bold disabled:opacity-40">
+        {aviso && <p className="text-sm text-[var(--k-accent)]">{aviso}</p>}
+        <button disabled={enviando || !email || !clave} className="w-full py-4 rounded-2xl bg-[var(--k-accent)] text-[var(--k-on-accent)] font-bold disabled:opacity-40">
           {modo === 'crear' ? 'Crear acceso' : 'Entrar'}
         </button>
       </form>
 
-      <button onClick={() => signInWithGoogle().catch(() => setError('No pudimos entrar con Google.'))} className="mt-3 w-full py-4 rounded-2xl bg-white font-bold">
+      <button onClick={() => signInWithGoogle().catch(() => setError('No pudimos entrar con Google.'))} className="mt-3 w-full py-4 rounded-2xl bg-[var(--k-surface)] font-bold">
         Seguir con Google
       </button>
 
@@ -116,7 +118,7 @@ const Acceso: React.FC = () => {
           <div>
             <button
               onClick={() => email ? resetPassword(email).then(() => setAviso('Te mandamos un mail para cambiar la contraseña.')).catch(() => setError('No pudimos mandar el mail.')) : setError('Escribí tu mail primero.')}
-              className="text-[#6F7D78] underline"
+              className="text-[var(--k-muted)] underline"
             >
               Me olvidé la contraseña
             </button>
@@ -124,5 +126,6 @@ const Acceso: React.FC = () => {
         )}
       </div>
     </div>
+    </Portada>
   );
 };

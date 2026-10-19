@@ -14,9 +14,23 @@
     --glass-card: rgba(255, 255, 255, 0.85);
   }
 
+  /* Tema Kalisfy (version simple): oscuro con acento lima. */
+  :root {
+    --k-bg: #0D0F0C;
+    --k-surface: #181B16;
+    --k-surface-2: #1F231C;
+    --k-line: #2A2F26;
+    --k-ink: #F3F5EF;
+    --k-muted: #9BA294;
+    --k-accent: #C6F24E;
+    --k-accent-soft: #2A3517;
+    --k-on-accent: #0D0F0C;
+    --k-warm: #FF8A4C;
+  }
+
   body {
-    background-color: #F4F3EC;
-    color: #20312D;
+    background-color: var(--k-bg);
+    color: var(--k-ink);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

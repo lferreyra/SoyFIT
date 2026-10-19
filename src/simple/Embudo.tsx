@@ -7,6 +7,7 @@ import { armarPlan, textoCarga } from './plan';
 import { guardarRespuestas, leerRespuestas } from './estado';
 import { BONOS_DEL_PROGRAMA, linkDePago, producto } from './oferta';
 import { Logo } from './Logo';
+import { Portada } from './Portada';
 
 const Marca = () => (
   <div className="py-4">
@@ -35,7 +36,18 @@ export const Embudo: React.FC = () => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pb-10 flex flex-col">
-      <div className="flex items-center gap-3 pt-3">
+      {indice === 0 && (
+        <Portada foto="/ejercicios/diamondpushup.jpg" className="-mx-4 h-[52vh] min-h-[340px]">
+          <div className="h-full flex flex-col justify-between px-4 pt-5 pb-2">
+            <div className="flex"><Logo size={30} /></div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--k-accent)]">Calistenia en casa</p>
+              <h1 className="text-[2.6rem] font-extrabold leading-[1.02] mt-2">Tu plan, armado para tu nivel</h1>
+            </div>
+          </div>
+        </Portada>
+      )}
+      <div className={`flex items-center gap-3 pt-3 ${indice === 0 ? 'hidden' : ''}`}>
         <button
           onClick={() => setIndice(Math.max(0, indice - 1))}
           className={`p-2 -ml-2 rounded-full ${indice === 0 ? 'invisible' : ''}`}
@@ -43,20 +55,18 @@ export const Embudo: React.FC = () => {
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="flex-1 h-2 rounded-full bg-white overflow-hidden">
-          <div className="h-full bg-[#56B89D] transition-all" style={{ width: `${progreso}%` }} />
+        <div className="flex-1 h-2 rounded-full bg-[var(--k-surface)] overflow-hidden">
+          <div className="h-full bg-[var(--k-accent)] transition-all" style={{ width: `${progreso}%` }} />
         </div>
-        <span className="text-xs text-[#6F7D78] w-8 text-right">{indice + 1}/{PASOS.length}</span>
+        <span className="text-xs text-[var(--k-muted)] w-8 text-right">{indice + 1}/{PASOS.length}</span>
       </div>
 
-      {indice === 0 && <Marca />}
-
-      <div className="pt-6 flex-1">
-        <h1 className="text-2xl font-extrabold leading-tight">{paso.titulo}</h1>
+      <div className={`${indice === 0 ? 'pt-3' : 'pt-6'} flex-1`}>
+        {indice > 0 && <h1 className="text-2xl font-extrabold leading-tight">{paso.titulo}</h1>}
 
         {paso.tipo === 'opciones' && (
           <>
-            {paso.subtitulo && <p className="text-[#6F7D78] mt-2">{paso.subtitulo}</p>}
+            {paso.subtitulo && <p className="text-[var(--k-muted)] mt-2">{paso.subtitulo}</p>}
             <div className="mt-6 space-y-3">
               {paso.opciones.map(o => {
                 const elegida = respuestas[paso.campo] === o.valor;
@@ -68,11 +78,11 @@ export const Embudo: React.FC = () => {
                       setTimeout(avanzar, 180);
                     }}
                     className={`w-full text-left px-5 py-4 rounded-2xl border-2 font-semibold flex items-center justify-between transition ${
-                      elegida ? 'border-[#56B89D] bg-[#DCEFE8]' : 'border-transparent bg-white'
+                      elegida ? 'border-[var(--k-accent)] bg-[var(--k-accent-soft)]' : 'border-transparent bg-[var(--k-surface)]'
                     }`}
                   >
                     {o.texto}
-                    <ChevronRight size={18} className="text-[#6F7D78]" />
+                    <ChevronRight size={18} className="text-[var(--k-muted)]" />
                   </button>
                 );
               })}
@@ -82,8 +92,8 @@ export const Embudo: React.FC = () => {
 
         {paso.tipo === 'dato' && (
           <>
-            <div className="mt-6 rounded-3xl bg-white p-6">
-              <Dumbbell className="text-[#56B89D]" size={32} />
+            <div className="mt-6 rounded-3xl bg-[var(--k-surface)] p-6">
+              <Dumbbell className="text-[var(--k-accent)]" size={32} />
               <p className="mt-4 text-lg leading-relaxed">{paso.texto}</p>
             </div>
             <BotonPrincipal onClick={avanzar}>Seguir</BotonPrincipal>
@@ -106,7 +116,7 @@ const BotonPrincipal: React.FC<{ onClick?: () => void; disabled?: boolean; child
   <button
     onClick={onClick}
     disabled={disabled}
-    className="mt-8 w-full py-4 rounded-2xl bg-[#20312D] text-white font-bold text-lg disabled:opacity-40"
+    className="mt-8 w-full py-4 rounded-2xl bg-[var(--k-accent)] text-[var(--k-on-accent)] font-bold text-lg disabled:opacity-40"
   >
     {children}
   </button>
@@ -114,12 +124,12 @@ const BotonPrincipal: React.FC<{ onClick?: () => void; disabled?: boolean; child
 
 const Campo: React.FC<{ etiqueta: string; children: React.ReactNode }> = ({ etiqueta, children }) => (
   <label className="block">
-    <span className="text-sm font-semibold text-[#6F7D78]">{etiqueta}</span>
+    <span className="text-sm font-semibold text-[var(--k-muted)]">{etiqueta}</span>
     {children}
   </label>
 );
 
-const claseInput = 'mt-1 w-full px-4 py-4 rounded-2xl bg-white text-lg font-semibold outline-none focus:ring-2 focus:ring-[#56B89D]';
+const claseInput = 'mt-1 w-full px-4 py-4 rounded-2xl bg-[var(--k-surface)] text-lg font-semibold outline-none focus:ring-2 focus:ring-[var(--k-accent)]';
 
 const Medidas: React.FC<{ respuestas: Respuestas; onCambio: (r: Respuestas) => void; onSeguir: () => void }> = ({ respuestas, onCambio, onSeguir }) => {
   const valido = (respuestas.alturaCm ?? 0) >= 120 && (respuestas.alturaCm ?? 0) <= 230 && (respuestas.pesoKg ?? 0) >= 35 && (respuestas.pesoKg ?? 0) <= 250;
@@ -152,7 +162,7 @@ const Contacto: React.FC<{ subtitulo: string; respuestas: Respuestas; onCambio: 
   const valido = (respuestas.nombre ?? '').trim().length > 1 && /^\S+@\S+\.\S+$/.test(respuestas.email ?? '');
   return (
     <div className="mt-2">
-      <p className="text-[#6F7D78]">{subtitulo}</p>
+      <p className="text-[var(--k-muted)]">{subtitulo}</p>
       <div className="mt-6 space-y-4">
         <Campo etiqueta="Tu nombre">
           <input className={claseInput} autoComplete="given-name" value={respuestas.nombre ?? ''} onChange={e => onCambio({ ...respuestas, nombre: e.target.value })} />
@@ -179,12 +189,13 @@ const Armando: React.FC<{ onListo: () => void }> = ({ onListo }) => {
     return () => clearTimeout(t);
   }, [paso]);
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-center">
-      <h1 className="text-2xl font-extrabold text-center">Armando tu plan</h1>
+    <Portada foto="/ejercicios/sideplank.jpg" className="min-h-screen">
+    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-end pb-16">
+      <h1 className="text-3xl font-extrabold">Armando tu plan</h1>
       <div className="mt-8 space-y-3">
         {MENSAJES_ARMANDO.slice(0, -1).map((m, i) => (
-          <div key={m} className={`flex items-center gap-3 px-5 py-4 rounded-2xl bg-white transition ${i <= paso ? 'opacity-100' : 'opacity-30'}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center ${i < paso ? 'bg-[#56B89D] text-white' : 'bg-[#F4F3EC]'}`}>
+          <div key={m} className={`flex items-center gap-3 px-5 py-4 rounded-2xl bg-[var(--k-surface)]/90 backdrop-blur transition ${i <= paso ? 'opacity-100' : 'opacity-30'}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center ${i < paso ? 'bg-[var(--k-accent)] text-[var(--k-on-accent)]' : 'bg-[var(--k-bg)]'}`}>
               {i < paso && <Check size={14} />}
             </span>
             <span className="font-semibold">{m}</span>
@@ -192,6 +203,7 @@ const Armando: React.FC<{ onListo: () => void }> = ({ onListo }) => {
         ))}
       </div>
     </div>
+    </Portada>
   );
 };
 
@@ -217,10 +229,17 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pb-28">
-      <Marca />
-      <h1 className="text-2xl font-extrabold leading-tight">
-        {respuestas.nombre ? `${respuestas.nombre.trim().split(/\s+/)[0]}, tu plan está listo` : 'Tu plan está listo'}
-      </h1>
+      <Portada foto="/ejercicios/glutebridge.jpg" className="-mx-4 h-[38vh] min-h-[260px]">
+        <div className="h-full flex flex-col justify-between px-4 pt-5 pb-2">
+          <div className="flex"><Logo size={28} /></div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--k-accent)]">Tu plan está listo</p>
+            <h1 className="text-[2.1rem] font-extrabold leading-[1.05] mt-2">
+              {respuestas.nombre ? `${respuestas.nombre.trim().split(/\s+/)[0]}, arrancamos` : 'Arrancamos'}
+            </h1>
+          </div>
+        </div>
+      </Portada>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Dato etiqueta="Objetivo" valor={NOMBRE_OBJETIVO[respuestas.objetivo ?? ''] ?? '—'} />
@@ -229,28 +248,28 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
         <Dato etiqueta="Duración" valor={`${plan.minutos} minutos`} />
       </div>
 
-      <div className="mt-6 rounded-3xl bg-white p-5">
-        <p className="text-xs font-bold text-[#56B89D] uppercase tracking-wide">Así arranca tu semana 1</p>
+      <div className="mt-6 rounded-3xl bg-[var(--k-surface)] p-5">
+        <p className="text-xs font-bold text-[var(--k-accent)] uppercase tracking-wide">Así arranca tu semana 1</p>
         <p className="font-extrabold text-lg mt-1">Día 1 · {primera.titulo}</p>
         <ul className="mt-3 space-y-2">
           {primera.principal.map(b => (
             <li key={b.ejercicio.id} className="flex justify-between gap-3 text-sm">
               <span className="font-semibold">{b.ejercicio.name}</span>
-              <span className="text-[#6F7D78] whitespace-nowrap">{textoCarga(b)}</span>
+              <span className="text-[var(--k-muted)] whitespace-nowrap">{textoCarga(b)}</span>
             </li>
           ))}
         </ul>
-        <div className="mt-4 pt-4 border-t border-[#F4F3EC] space-y-2">
+        <div className="mt-4 pt-4 border-t border-[var(--k-line)] space-y-2">
           {plan.semanas.slice(1).map(s => (
-            <div key={s.numero} className="flex items-center gap-2 text-sm text-[#6F7D78]">
+            <div key={s.numero} className="flex items-center gap-2 text-sm text-[var(--k-muted)]">
               <Lock size={14} /> Semana {s.numero} · {s.tema}
             </div>
           ))}
         </div>
       </div>
 
-      <div className="mt-6 rounded-3xl bg-[#20312D] text-white p-5">
-        <p className="text-xs font-bold text-[#A8D5C7] uppercase tracking-wide">Lo que incluye</p>
+      <div className="mt-6 rounded-3xl bg-[var(--k-surface-2)] text-white p-5">
+        <p className="text-xs font-bold text-[var(--k-accent)] uppercase tracking-wide">Lo que incluye</p>
         <Item titulo={principal.nombre} texto={principal.resumen} />
         {BONOS_DEL_PROGRAMA.map(id => {
           const b = producto(id);
@@ -260,18 +279,18 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
         {principal.precio && <p className="mt-5 text-3xl font-extrabold">{principal.precio}</p>}
       </div>
 
-      <p className="mt-6 text-xs text-[#6F7D78] leading-relaxed">
+      <p className="mt-6 text-xs text-[var(--k-muted)] leading-relaxed">
         Si tenés una lesión, dolor o una condición médica, consultá con un profesional antes de empezar.
       </p>
 
-      <div className="fixed bottom-0 inset-x-0 bg-[#F4F3EC]/95 backdrop-blur px-4 py-3">
+      <div className="fixed bottom-0 inset-x-0 bg-[var(--k-bg)]/95 backdrop-blur px-4 py-3">
         <div className="max-w-md mx-auto">
           {link ? (
-            <a href={link} className="block w-full py-4 rounded-2xl bg-[#56B89D] text-white font-bold text-lg text-center">
+            <a href={link} className="block w-full py-4 rounded-2xl bg-[var(--k-accent)] text-[var(--k-on-accent)] font-bold text-lg text-center">
               Quiero mi plan
             </a>
           ) : (
-            <button disabled className="w-full py-4 rounded-2xl bg-[#56B89D] text-white font-bold text-lg opacity-50">
+            <button disabled className="w-full py-4 rounded-2xl bg-[var(--k-accent)] text-[var(--k-on-accent)] font-bold text-lg opacity-50">
               Link de pago pendiente
             </button>
           )}
@@ -282,15 +301,15 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
 };
 
 const Dato: React.FC<{ etiqueta: string; valor: string }> = ({ etiqueta, valor }) => (
-  <div className="rounded-2xl bg-white p-4">
-    <p className="text-xs text-[#6F7D78]">{etiqueta}</p>
+  <div className="rounded-2xl bg-[var(--k-surface)] p-4">
+    <p className="text-xs text-[var(--k-muted)]">{etiqueta}</p>
     <p className="font-bold mt-1 leading-tight">{valor}</p>
   </div>
 );
 
 const Item: React.FC<{ titulo: string; texto: string }> = ({ titulo, texto }) => (
   <div className="mt-4 flex gap-3">
-    <Check size={18} className="text-[#56B89D] shrink-0 mt-0.5" />
+    <Check size={18} className="text-[var(--k-accent)] shrink-0 mt-0.5" />
     <div>
       <p className="font-bold">{titulo}</p>
       <p className="text-sm text-white/70">{texto}</p>
