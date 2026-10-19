@@ -6,11 +6,11 @@ import { PASOS, Respuestas } from './cuestionario';
 import { armarPlan, textoCarga } from './plan';
 import { guardarRespuestas, leerRespuestas } from './estado';
 import { BONOS_DEL_PROGRAMA, linkDePago, producto } from './oferta';
+import { Logo } from './Logo';
 
 const Marca = () => (
-  <div className="flex items-center justify-center gap-2 py-4">
-    <div className="w-8 h-8 rounded-xl bg-[#20312D] text-white flex items-center justify-center font-extrabold">S</div>
-    <span className="font-extrabold tracking-tight text-lg">SOYFIT</span>
+  <div className="py-4">
+    <Logo size={32} />
   </div>
 );
 

@@ -6,6 +6,7 @@ import { Embudo } from './Embudo';
 import { AppSimple } from './AppSimple';
 import { esVistaPrevia, leerCompras, leerRespuestas, useUsuario } from './estado';
 import { linkDePago, PRODUCTOS, ProductoId } from './oferta';
+import { Logo } from './Logo';
 
 export const Raiz: React.FC = () => {
   const enApp = location.pathname.startsWith('/app');
@@ -83,9 +84,8 @@ const Acceso: React.FC = () => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-center py-10">
-      <div className="flex items-center justify-center gap-2 mb-8">
-        <div className="w-9 h-9 rounded-xl bg-[#20312D] text-white flex items-center justify-center font-extrabold">S</div>
-        <span className="font-extrabold tracking-tight text-xl">SOYFIT</span>
+      <div className="mb-8">
+        <Logo size={36} />
       </div>
       <h1 className="text-2xl font-extrabold text-center">{modo === 'crear' ? 'Creá tu acceso' : 'Entrá a tu programa'}</h1>
       <p className="text-[#6F7D78] text-center mt-2">Usá el mismo mail con el que pagaste.</p>

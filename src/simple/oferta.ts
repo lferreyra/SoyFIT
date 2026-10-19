@@ -23,7 +23,7 @@ export const PRODUCTOS: Producto[] = [
   {
     id: 'programa',
     tipo: 'principal',
-    nombre: 'Programa SoyFit de 4 semanas',
+    nombre: 'Programa Kalisfy de 4 semanas',
     resumen: 'Rutina de calistenia en casa armada para tu nivel, con temporizador y avance semana a semana.',
     precio: '',
     linkPago: '',

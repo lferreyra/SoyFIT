@@ -10,6 +10,7 @@ import { armarPlan, Bloque, proximaSesion, Sesion } from './plan';
 import { guardarCompletadas, guardarRespuestas, leerCompletadas, leerRespuestas } from './estado';
 import { linkDePago, producto, ProductoId } from './oferta';
 import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
+import { Logo } from './Logo';
 import { aptaPara, CATEGORIAS, Categoria, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
 
 type Pestana = 'hoy' | 'programa' | 'recetas' | 'perfil';
@@ -52,6 +53,9 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pt-4 pb-28">
+      <div className="flex mb-5">
+        <Logo size={26} />
+      </div>
       {pestana === 'hoy' && (
         <Hoy nombre={nombre} plan={plan} completadas={completadas} onEmpezar={setEnCurso} />
       )}

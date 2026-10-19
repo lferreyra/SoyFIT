@@ -14,7 +14,7 @@ export interface Receta {
   d: Dieta; // la dieta mas restrictiva para la que sirve
   x: 0 | 1; // 1 = lleva algo dificil o caro de conseguir en Argentina (mango, tahini, tofu...)
   s: 0 | 1; // 1 = simple: ingredientes faciles, pocos y preparacion corta
-  p: 0 | 1; // 1 = del recetario alto en proteina (escrito para SoyFit, scripts/recetas-proteicas.json)
+  p: 0 | 1; // 1 = del recetario alto en proteina (escrito para Kalisfy, scripts/recetas-proteicas.json)
 }
 
 export const CATEGORIAS: { id: Categoria; nombre: string }[] = [
