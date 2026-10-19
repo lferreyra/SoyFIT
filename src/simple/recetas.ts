@@ -14,6 +14,7 @@ export interface Receta {
   d: Dieta; // la dieta mas restrictiva para la que sirve
   x: 0 | 1; // 1 = lleva algo dificil o caro de conseguir en Argentina (mango, tahini, tofu...)
   s: 0 | 1; // 1 = simple: ingredientes faciles, pocos y preparacion corta
+  p: 0 | 1; // 1 = del recetario alto en proteina (escrito para SoyFit, scripts/recetas-proteicas.json)
 }
 
 export const CATEGORIAS: { id: Categoria; nombre: string }[] = [
@@ -28,6 +29,7 @@ export const NOMBRE_DIETA: Record<Dieta, string> = {
   omnivoro: 'Como de todo',
   vegetariano: 'Vegetariana',
   vegano: 'Vegana',
+  proteico: 'Alta en proteína',
 };
 
 let cache: Receta[] | null = null;
@@ -48,6 +50,7 @@ export function useRecetas(): Receta[] | null {
 }
 
 export function aptaPara(receta: Receta, dieta: Dieta): boolean {
+  if (dieta === 'proteico') return receta.p === 1;
   if (dieta === 'vegano') return receta.d === 'vegano';
   if (dieta === 'vegetariano') return receta.d !== 'omnivoro';
   return true;
