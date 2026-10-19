@@ -1,5 +1,6 @@
 // Recetario (public/recetas.json, sacado del PDF "+2000 Recetas Para Comer Bien", modulo 6).
-// La dieta de cada receta se marco por palabras clave al importarlas: es aproximada.
+// La dieta, la dificultad de conseguir ingredientes y la simplicidad se marcaron por
+// palabras clave al importarlas: son aproximadas.
 
 import { useEffect, useState } from 'react';
 import { Dieta } from './cuestionario';
@@ -11,6 +12,8 @@ export interface Receta {
   n: string; // nombre
   t: string; // preparacion
   d: Dieta; // la dieta mas restrictiva para la que sirve
+  x: 0 | 1; // 1 = lleva algo dificil o caro de conseguir en Argentina (mango, tahini, tofu...)
+  s: 0 | 1; // 1 = simple: ingredientes faciles, pocos y preparacion corta
 }
 
 export const CATEGORIAS: { id: Categoria; nombre: string }[] = [
@@ -54,7 +57,8 @@ export function aptaPara(receta: Receta, dieta: Dieta): boolean {
 export function menuSemanal(recetas: Receta[], dieta: Dieta, fecha = new Date()) {
   const inicioAno = new Date(fecha.getFullYear(), 0, 1);
   const semana = Math.floor((fecha.getTime() - inicioAno.getTime()) / (7 * 86400000));
-  const por = (c: Categoria) => recetas.filter(r => r.c === c && aptaPara(r, dieta));
+  // El menu usa solo recetas simples con ingredientes faciles de conseguir.
+  const por = (c: Categoria) => recetas.filter(r => r.c === c && r.s === 1 && aptaPara(r, dieta));
   const momentos: { c: Categoria; nombre: string }[] = [
     { c: 'desayuno', nombre: 'Desayuno' },
     { c: 'almuerzo', nombre: 'Almuerzo' },

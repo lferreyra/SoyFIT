@@ -268,17 +268,20 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
   const [vista, setVista] = useState<'menu' | 'todas'>(tiene('plan_comidas') ? 'menu' : 'todas');
   const [categoria, setCategoria] = useState<Categoria>('almuerzo');
   const [busqueda, setBusqueda] = useState('');
+  const [faciles, setFaciles] = useState(true);
   const [cantidad, setCantidad] = useState(POR_PAGINA);
 
   const filtradas = useMemo(() => {
     if (!recetas) return [];
     const q = busqueda.trim().toLowerCase();
-    return recetas.filter(r =>
-      aptaPara(r, dieta) && (q ? (r.n + ' ' + r.t).toLowerCase().includes(q) : r.c === categoria),
-    );
-  }, [recetas, dieta, categoria, busqueda]);
+    return recetas
+      .filter(r =>
+        aptaPara(r, dieta) && (!faciles || r.x === 0) && (q ? (r.n + ' ' + r.t).toLowerCase().includes(q) : r.c === categoria),
+      )
+      .sort((a, b) => b.s - a.s); // las simples primero
+  }, [recetas, dieta, categoria, busqueda, faciles]);
 
-  useEffect(() => { setCantidad(POR_PAGINA); }, [categoria, busqueda]);
+  useEffect(() => { setCantidad(POR_PAGINA); }, [categoria, busqueda, faciles]);
 
   if (!tiene('recetario')) {
     return (
@@ -337,6 +340,10 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
               ))}
             </div>
           )}
+          <label className="flex items-center gap-3 mb-3 text-sm font-semibold">
+            <input type="checkbox" checked={faciles} onChange={e => setFaciles(e.target.checked)} className="w-5 h-5 accent-[#56B89D]" />
+            Solo ingredientes fáciles de conseguir
+          </label>
           <p className="text-sm text-[#6F7D78] mb-3">{filtradas.length} recetas</p>
           <div className="space-y-2">
             {filtradas.slice(0, cantidad).map(r => <FichaReceta key={r.c + r.n} receta={r} />)}
