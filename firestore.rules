@@ -68,6 +68,12 @@ service cloud.firestore {
              (!('currentStreakDays' in data) || (data.currentStreakDays is number && data.currentStreakDays >= 0));
     }
 
+    // Compras de la version simple: las escribe solo el servidor (webhook del pago).
+    // Cada persona puede leer unicamente la de su propio mail.
+    match /compras/{email} {
+      allow get: if isSignedIn() && request.auth.token.email.lower() == email;
+    }
+
     // User Profile Document and Subcollections
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();

@@ -29,7 +29,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Flexiones en pared con pies más cerca'],
     progressionOptions: ['Flexiones inclinadas en banco o mesa firme'],
     safetyNotes: 'Muy suave con hombros y muñecas; ideal para construir el patrón básico de empuje.',
-    imageUrl: '/src/assets/images/exercise_wallpushup_1791204909176.jpg'
+    imageUrl: '/ejercicios/wallpushup.jpg'
   },
   {
     id: 'pushup-incline',
@@ -60,7 +60,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Flexiones en pared'],
     progressionOptions: ['Flexiones de rodillas', 'Flexiones negativas'],
     safetyNotes: 'Mantené el abdomen activo y los glúteos contraídos durante cada repetición.',
-    imageUrl: '/src/assets/images/exercise_inclinepushup_1791204922398.jpg'
+    imageUrl: '/ejercicios/inclinepushup.jpg'
   },
   {
     id: 'pushup-knee',
@@ -171,7 +171,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Flexiones estándar', 'Flexiones diamante sobre rodillas'],
     progressionOptions: ['Flexiones pseudo planche'],
     safetyNotes: 'Exige mayor movilidad de muñecas y codos. Calentá bien las articulaciones antes.',
-    imageUrl: '/src/assets/images/exercise_diamondpushup_1791204935403.jpg'
+    imageUrl: '/ejercicios/diamondpushup.jpg'
   },
 
   // PROGRESIÓN DE SENTADILLAS (TREN INFERIOR)
@@ -201,7 +201,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Sentadilla asistida agarrándote de un marco de puerta'],
     progressionOptions: ['Sentadillas al aire sin asiento'],
     safetyNotes: 'Protege las rodillas y enseña el bisagraje de cadera perfecto.',
-    imageUrl: '/src/assets/images/exercise_boxsquat_1791204946758.jpg'
+    imageUrl: '/ejercicios/boxsquat.jpg'
   },
   {
     id: 'squat-air',
@@ -258,7 +258,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Sentadillas al aire', 'Estocada estática con apoyo en la pared'],
     progressionOptions: ['Sentadilla búlgara con pie elevado'],
     safetyNotes: 'Excelente para equilibrar la fuerza de ambas piernas y cuidar la pelvis.',
-    imageUrl: '/src/assets/images/sentadilla_split_1791287505810.jpg'
+    imageUrl: '/ejercicios/sentadilla_split.jpg'
   },
   {
     id: 'squat-bulgarian',
@@ -286,7 +286,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Sentadilla split en el suelo'],
     progressionOptions: ['Sentadilla búlgara con pausa en el fondo', 'Pistol squat asistida'],
     safetyNotes: 'Construye una estabilidad y fuerza de piernas excepcional sin necesidad de cargas pesadas.',
-    imageUrl: '/src/assets/images/exercise_bulgariansquat_1791204957884.jpg'
+    imageUrl: '/ejercicios/bulgariansquat.jpg'
   },
 
   // PROGRESIÓN DE CORE Y ESTABILIDAD
@@ -317,7 +317,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Bicho muerto moviendo solo brazos o solo piernas'],
     progressionOptions: ['Bird Dog en cuadrupedia', 'Plancha frontal'],
     safetyNotes: 'Patrón de oro para rehabilitación de espalda y control anti-extensión.',
-    imageUrl: '/src/assets/images/exercise_deadbug_1791204845705.jpg'
+    imageUrl: '/ejercicios/deadbug.jpg'
   },
   {
     id: 'core-birddog',
@@ -345,7 +345,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Bird Dog levantando solo una pierna a la vez'],
     progressionOptions: ['Plancha frontal isométrica'],
     safetyNotes: 'Recomendado por especialistas en columna para proteger y descomprimir la espalda.',
-    imageUrl: '/src/assets/images/exercise_birddog_1791204855109.jpg'
+    imageUrl: '/ejercicios/birddog.jpg'
   },
   {
     id: 'core-plank',
@@ -402,7 +402,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Plancha lateral con rodillas flexionadas a 90 grados'],
     progressionOptions: ['Hollow Body Hold', 'Plancha lateral con elevación de pierna'],
     safetyNotes: 'Fundamental para estabilizar la cadera y prevenir molestias de espalda baja.',
-    imageUrl: '/src/assets/images/exercise_sideplank_1791204865737.jpg'
+    imageUrl: '/ejercicios/sideplank.jpg'
   },
   {
     id: 'core-hollowhold',
@@ -459,7 +459,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Remo con banda de menor resistencia o de pie'],
     progressionOptions: ['Remo invertido en mesa o barra baja'],
     safetyNotes: 'Clave para contrarrestar las horas de postura frente a la computadora y el celular.',
-    imageUrl: '/src/assets/images/exercise_bandrow_1791204968958.jpg'
+    imageUrl: '/ejercicios/bandrow.jpg'
   },
   {
     id: 'glute-bridge',
@@ -486,7 +486,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Puente bipodal con menor elevación'],
     progressionOptions: ['Puente de glúteos a una sola pierna'],
     safetyNotes: 'Excelente activación de la cadena posterior sin impacto para rodillas ni espalda.',
-    imageUrl: '/src/assets/images/exercise_glutebridge_1791204882190.jpg'
+    imageUrl: '/ejercicios/glutebridge.jpg'
   },
 
   // MOVILIDAD Y RECUPERACIÓN
@@ -543,7 +543,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Movimiento sentado en silla si hay dolor de muñecas'],
     progressionOptions: ['Gato-vaca con disociación pélvica'],
     safetyNotes: 'Alivia tensiones acumuladas en la espalda y mejora la circulación en la columna.',
-    imageUrl: '/src/assets/images/postura_gato_1791287487776.jpg'
+    imageUrl: '/ejercicios/postura_gato.jpg'
   },
   {
     id: 'mobility-9090-hips',
@@ -570,7 +570,7 @@ export const EXERCISE_LIBRARY: Exercise[] = [
     regressionOptions: ['Sentado en silla abriendo y cerrando rodillas'],
     progressionOptions: ['Rotaciones 90/90 sin apoyar las manos en el piso'],
     safetyNotes: 'Cuidá las rodillas; no fuerces el rango si sentís pinchazos.',
-    imageUrl: '/src/assets/images/exercise_hip9090_1791204891580.jpg'
+    imageUrl: '/ejercicios/hip9090.jpg'
   },
 
   // CARDIO FUNCIONAL Y HIIT DE BAJO IMPACTO
