@@ -6,7 +6,7 @@ export type Edad = '18-25' | '26-35' | '36-45' | '46+';
 export type Objetivo = 'bajar_grasa' | 'tonificar' | 'ganar_musculo' | 'fuerza';
 export type Flexiones = '0' | '1-5' | '6-15' | '15+';
 export type Lugar = 'casa' | 'plaza' | 'ambos';
-export type Dieta = 'omnivoro' | 'vegetariano' | 'vegano' | 'proteico' | 'metabolico';
+export type Dieta = 'omnivoro' | 'vegetariano' | 'vegano';
 
 export interface Respuestas {
   sexo?: Sexo;
@@ -131,13 +131,11 @@ export const PASOS: Paso[] = [
     tipo: 'opciones',
     campo: 'dieta',
     titulo: '¿Cómo comés?',
-    subtitulo: 'Tus recetas van a ser de este tipo.',
+    subtitulo: 'Todas las recetas son sin azúcar y sin gluten.',
     opciones: [
       { valor: 'omnivoro', texto: 'Como de todo' },
       { valor: 'vegetariano', texto: 'Vegetariano' },
       { valor: 'vegano', texto: 'Vegano' },
-      { valor: 'proteico', texto: 'Alto en proteína' },
-      { valor: 'metabolico', texto: 'Por fases (metabólico)' },
     ],
   },
   { tipo: 'medidas', titulo: 'Tu altura y tu peso' },

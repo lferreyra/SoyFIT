@@ -206,8 +206,6 @@ const NOMBRE_DIETA: Record<string, string> = {
   omnivoro: 'Como de todo',
   vegetariano: 'Vegetariana',
   vegano: 'Vegana',
-  proteico: 'Alta en proteína',
-  metabolico: 'Por fases',
 };
 
 const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
@@ -255,7 +253,7 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
         <Item titulo={principal.nombre} texto={principal.resumen} />
         {BONOS_DEL_PROGRAMA.map(id => {
           const b = producto(id);
-          const texto = id === 'recetario' && respuestas.dieta ? `Recetas de alimentación ${NOMBRE_DIETA[respuestas.dieta].toLowerCase()}, con ingredientes y paso a paso.` : b.resumen;
+          const texto = id === 'recetario' && respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? `Más de 1.700 recetas sin azúcar y sin gluten, filtradas para alimentación ${NOMBRE_DIETA[respuestas.dieta].toLowerCase()}.` : b.resumen;
           return <Item key={id} titulo={`Bono: ${b.nombre}`} texto={texto} />;
         })}
         {principal.precio && <p className="mt-5 text-3xl font-extrabold">{principal.precio}</p>}

@@ -2,53 +2,17 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { User } from 'firebase/auth';
-import { BookOpen, Calendar, Check, ChevronDown, Home, Lock, LogOut, User as UserIcon } from 'lucide-react';
+import { BookOpen, Calendar, Check, ChevronDown, Home, Lock, LogOut, Search, User as UserIcon } from 'lucide-react';
 import { logOut, saveWorkoutSessionToFirestore } from '../lib/firebase';
 import { EXERCISE_LIBRARY } from '../data/exerciseLibrary';
-import {
-  DUKAN_RECIPES_POOL,
-  OMNIVORE_RECIPES_POOL,
-  POMROY_RECIPES_POOL,
-  VEGAN_RECIPES_POOL,
-  VEGETARIAN_RECIPES_POOL,
-} from '../data/nutritionPlans';
-import { Meal } from '../types/fitness';
 import { Dieta, Respuestas } from './cuestionario';
 import { armarPlan, Bloque, proximaSesion, Sesion } from './plan';
 import { guardarCompletadas, guardarRespuestas, leerCompletadas, leerRespuestas } from './estado';
 import { linkDePago, producto, ProductoId } from './oferta';
 import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
+import { aptaPara, CATEGORIAS, Categoria, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
 
 type Pestana = 'hoy' | 'programa' | 'recetas' | 'perfil';
-
-const RECETAS: Record<Dieta, { nombre: string; pool: any[] }> = {
-  omnivoro: { nombre: 'Como de todo', pool: OMNIVORE_RECIPES_POOL },
-  vegetariano: { nombre: 'Vegetariana', pool: VEGETARIAN_RECIPES_POOL },
-  vegano: { nombre: 'Vegana', pool: VEGAN_RECIPES_POOL },
-  proteico: { nombre: 'Alta en proteína', pool: DUKAN_RECIPES_POOL },
-  metabolico: { nombre: 'Por fases', pool: POMROY_RECIPES_POOL },
-};
-
-const TIPO_COMIDA: Record<Meal['type'], string> = {
-  Breakfast: 'Desayuno',
-  Lunch: 'Almuerzo',
-  Dinner: 'Cena',
-  Snack: 'Colación',
-};
-
-function recetasDe(dieta: Dieta): Meal[] {
-  const vistas = new Set<string>();
-  const lista: Meal[] = [];
-  RECETAS[dieta].pool.forEach(dia => {
-    [dia.breakfast, dia.lunch, dia.dinner, dia.snack].forEach((m: Meal) => {
-      if (!vistas.has(m.id)) {
-        vistas.add(m.id);
-        lista.push(m);
-      }
-    });
-  });
-  return lista;
-}
 
 export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }> = ({ usuario, compras }) => {
   const uid = usuario?.uid ?? 'vista-previa';
@@ -95,7 +59,7 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
         <Programa plan={plan} completadas={completadas} onEmpezar={setEnCurso} tiene={tiene} email={usuario?.email ?? ''} />
       )}
       {pestana === 'recetas' && (
-        <Recetas dieta={respuestas.dieta ?? 'omnivoro'} tiene={tiene} email={usuario?.email ?? ''} />
+        <Recetas dieta={respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? respuestas.dieta : 'omnivoro'} tiene={tiene} email={usuario?.email ?? ''} />
       )}
       {pestana === 'perfil' && (
         <Perfil usuario={usuario} respuestas={respuestas} onCambio={setRespuestas} compras={compras} />
@@ -281,10 +245,40 @@ const Bloqueado: React.FC<{ id: ProductoId; email: string }> = ({ id, email }) =
   );
 };
 
+const FichaReceta: React.FC<{ receta: Receta; etiqueta?: string }> = ({ receta, etiqueta }) => {
+  const [abierta, setAbierta] = useState(false);
+  return (
+    <div className="rounded-2xl bg-white overflow-hidden">
+      <button onClick={() => setAbierta(!abierta)} className="w-full p-4 flex gap-3 text-left">
+        <div className="flex-1">
+          {etiqueta && <p className="text-xs font-bold uppercase tracking-wide text-[#56B89D]">{etiqueta}</p>}
+          <p className="font-bold leading-tight mt-0.5">{receta.n}</p>
+        </div>
+        <ChevronDown size={18} className={`text-[#6F7D78] transition shrink-0 mt-1 ${abierta ? 'rotate-180' : ''}`} />
+      </button>
+      {abierta && <p className="px-4 pb-4 text-sm leading-relaxed">{receta.t}</p>}
+    </div>
+  );
+};
+
+const POR_PAGINA = 30;
+
 const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; email: string }> = ({ dieta, tiene, email }) => {
-  const [elegida, setElegida] = useState<Dieta>(dieta);
-  const [abierta, setAbierta] = useState<string | null>(null);
-  const recetas = useMemo(() => recetasDe(elegida), [elegida]);
+  const recetas = useRecetas();
+  const [vista, setVista] = useState<'menu' | 'todas'>(tiene('plan_comidas') ? 'menu' : 'todas');
+  const [categoria, setCategoria] = useState<Categoria>('almuerzo');
+  const [busqueda, setBusqueda] = useState('');
+  const [cantidad, setCantidad] = useState(POR_PAGINA);
+
+  const filtradas = useMemo(() => {
+    if (!recetas) return [];
+    const q = busqueda.trim().toLowerCase();
+    return recetas.filter(r =>
+      aptaPara(r, dieta) && (q ? (r.n + ' ' + r.t).toLowerCase().includes(q) : r.c === categoria),
+    );
+  }, [recetas, dieta, categoria, busqueda]);
+
+  useEffect(() => { setCantidad(POR_PAGINA); }, [categoria, busqueda]);
 
   if (!tiene('recetario')) {
     return (
@@ -295,51 +289,65 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
     );
   }
 
+  const chip = (activo: boolean) => `px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${activo ? 'bg-[#20312D] text-white' : 'bg-white'}`;
+
   return (
     <>
-      <Titulo sub={`${recetas.length} recetas`}>Recetas</Titulo>
-      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 mb-4">
-        {(Object.keys(RECETAS) as Dieta[]).map(d => (
-          <button
-            key={d}
-            onClick={() => setElegida(d)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap ${elegida === d ? 'bg-[#20312D] text-white' : 'bg-white'}`}
-          >
-            {RECETAS[d].nombre}
-          </button>
-        ))}
+      <Titulo sub={`Sin azúcar y sin gluten · alimentación ${NOMBRE_DIETA[dieta].toLowerCase()}`}>Recetas</Titulo>
+
+      <div className="grid grid-cols-2 gap-2 mb-5 p-1 rounded-2xl bg-white">
+        <button onClick={() => setVista('menu')} className={`py-2.5 rounded-xl text-sm font-bold ${vista === 'menu' ? 'bg-[#20312D] text-white' : ''}`}>Menú de la semana</button>
+        <button onClick={() => setVista('todas')} className={`py-2.5 rounded-xl text-sm font-bold ${vista === 'todas' ? 'bg-[#20312D] text-white' : ''}`}>Todas las recetas</button>
       </div>
-      <div className="space-y-2">
-        {recetas.map(m => {
-          const open = abierta === m.id;
-          return (
-            <div key={m.id} className="rounded-2xl bg-white overflow-hidden">
-              <button onClick={() => setAbierta(open ? null : m.id)} className="w-full p-4 flex gap-3 text-left">
-                <div className="flex-1">
-                  <p className="text-xs font-bold uppercase tracking-wide text-[#56B89D]">{TIPO_COMIDA[m.type]} · {m.prepTimeMinutes} min</p>
-                  <p className="font-bold leading-tight mt-1">{m.name}</p>
+
+      {!recetas && <p className="text-[#6F7D78]">Cargando recetas…</p>}
+
+      {recetas && vista === 'menu' && (
+        tiene('plan_comidas') ? (
+          <div className="space-y-6">
+            {menuSemanal(recetas, dieta).map(d => (
+              <div key={d.dia}>
+                <p className="text-xs font-bold uppercase tracking-wide text-[#6F7D78]">{d.dia}</p>
+                <div className="mt-2 space-y-2">
+                  {d.comidas.map(c => c.receta && <FichaReceta key={c.momento} receta={c.receta} etiqueta={c.momento} />)}
                 </div>
-                <ChevronDown size={18} className={`text-[#6F7D78] transition shrink-0 mt-1 ${open ? 'rotate-180' : ''}`} />
-              </button>
-              {open && (
-                <div className="px-4 pb-4 text-sm">
-                  <p className="text-xs font-bold uppercase tracking-wide text-[#6F7D78]">Ingredientes</p>
-                  <ul className="mt-2 space-y-1 list-disc pl-5">{m.ingredients.map((x, i) => <li key={i}>{x}</li>)}</ul>
-                  {m.instructions && (
-                    <>
-                      <p className="mt-4 text-xs font-bold uppercase tracking-wide text-[#6F7D78]">Preparación</p>
-                      <ol className="mt-2 space-y-1 list-decimal pl-5">{m.instructions.map((x, i) => <li key={i}>{x}</li>)}</ol>
-                    </>
-                  )}
-                </div>
-              )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Bloqueado id="plan_comidas" email={email} />
+        )
+      )}
+
+      {recetas && vista === 'todas' && (
+        <>
+          <label className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-white mb-3">
+            <Search size={18} className="text-[#6F7D78]" />
+            <input
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              placeholder="Buscar por ingrediente o nombre"
+              className="flex-1 outline-none bg-transparent"
+            />
+          </label>
+          {!busqueda && (
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 mb-3">
+              {CATEGORIAS.map(c => (
+                <button key={c.id} onClick={() => setCategoria(c.id)} className={chip(categoria === c.id)}>{c.nombre}</button>
+              ))}
             </div>
-          );
-        })}
-      </div>
-      <div className="mt-6">
-        {!tiene('plan_comidas') && <Bloqueado id="plan_comidas" email={email} />}
-      </div>
+          )}
+          <p className="text-sm text-[#6F7D78] mb-3">{filtradas.length} recetas</p>
+          <div className="space-y-2">
+            {filtradas.slice(0, cantidad).map(r => <FichaReceta key={r.c + r.n} receta={r} />)}
+          </div>
+          {cantidad < filtradas.length && (
+            <button onClick={() => setCantidad(cantidad + POR_PAGINA)} className="mt-4 w-full py-3.5 rounded-2xl bg-white font-bold">
+              Ver más
+            </button>
+          )}
+        </>
+      )}
     </>
   );
 };
@@ -376,7 +384,7 @@ const Perfil: React.FC<{ usuario: User | null; respuestas: Respuestas; onCambio:
         </label>
         <label className="block text-sm text-[#6F7D78]">Alimentación
           <select className={select} value={respuestas.dieta ?? 'omnivoro'} onChange={e => onCambio({ ...respuestas, dieta: e.target.value as Dieta })}>
-            {(Object.keys(RECETAS) as Dieta[]).map(d => <option key={d} value={d}>{RECETAS[d].nombre}</option>)}
+            {(Object.keys(NOMBRE_DIETA) as Dieta[]).map(d => <option key={d} value={d}>{NOMBRE_DIETA[d]}</option>)}
           </select>
         </label>
       </div>
