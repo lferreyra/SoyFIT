@@ -8,11 +8,10 @@ export const Isotipo: React.FC<{ size?: number }> = ({ size = 32 }) => (
     <rect width="64" height="64" rx="15" fill="#0D0F0C" />
     <g transform="translate(32 32) scale(0.78) translate(-32 -32)">
       <circle cx="25" cy="13" r="6.3" fill="#F3F5EF" />
-      <path d="M20 25.5V50" stroke="#C6F24E" strokeWidth="8.5" strokeLinecap="round" />
+      
       <path d="M21 39L47.5 12.5" stroke="#C6F24E" strokeWidth="8.5" strokeLinecap="round" />
-      {/* corte fino entre el brazo y la pierna */}
-      <path d="M31.5 32L46 50" stroke="#0D0F0C" strokeWidth="13" strokeLinecap="round" />
-      <path d="M31.5 32L46 50" stroke="#C6F24E" strokeWidth="8.5" strokeLinecap="round" />
+      <path d="M20 25.5V50" stroke="#C6F24E" strokeWidth="8.5" strokeLinecap="round" />
+      <path d="M31 29L46 50" stroke="#C6F24E" strokeWidth="8.5" strokeLinecap="round" />
     </g>
   </svg>
 );
