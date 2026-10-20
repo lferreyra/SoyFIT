@@ -10,6 +10,6 @@ export const Isotipo: React.FC<{ size?: number }> = ({ size = 32 }) => (
 
 export const Logo: React.FC<{ size?: number }> = ({ size = 32 }) => (
   <div className="flex items-center justify-center">
-    <img src="/marca/kalisfy-logo-transparente.svg" alt="Kalisfy" style={{ height: size * 1.15, width: 'auto' }} />
+    <img src="/marca/kalisfy-logo-transparente.svg" alt="Kalisfy" style={{ height: size * 1.15, width: 'auto', filter: 'drop-shadow(0 1px 6px rgba(0,0,0,0.45))' }} />
   </div>
 );
