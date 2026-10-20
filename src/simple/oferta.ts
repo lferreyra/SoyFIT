@@ -1,9 +1,14 @@
 // Que se vende y donde se cobra. Precios, nombres y links de pago los define el dueno:
 // mientras un link este vacio, el boton muestra "Link de pago pendiente".
 
+import { Dieta } from './cuestionario';
+
 export type ProductoId =
   | 'programa'
-  | 'recetario'
+  | 'recetario_omnivoro'
+  | 'recetario_vegetariano'
+  | 'recetario_vegano'
+  | 'recetario_proteico'
   | 'movilidad'
   | 'habitos'
   | 'plan_comidas'
@@ -28,11 +33,37 @@ export const PRODUCTOS: Producto[] = [
     precio: '',
     linkPago: '',
   },
+  // Los 4 recetarios son bonos separados (decision del dueno, 2026-10-19). Cantidades
+  // contadas en public/recetas.json el 2026-10-20.
   {
-    id: 'recetario',
+    id: 'recetario_omnivoro',
     tipo: 'bono',
-    nombre: 'Recetario según tu alimentación',
-    resumen: 'Recetas simples para tu tipo de dieta, con ingredientes y paso a paso.',
+    nombre: 'Recetario Como de Todo',
+    resumen: 'Más de 1.800 recetas sin azúcar y sin gluten para todos los días, con ingredientes y paso a paso.',
+    precio: '',
+    linkPago: '',
+  },
+  {
+    id: 'recetario_vegetariano',
+    tipo: 'bono',
+    nombre: 'Recetario Vegetariano',
+    resumen: 'Más de 1.700 recetas vegetarianas sin azúcar y sin gluten.',
+    precio: '',
+    linkPago: '',
+  },
+  {
+    id: 'recetario_vegano',
+    tipo: 'bono',
+    nombre: 'Recetario Vegano',
+    resumen: 'Más de 1.100 recetas veganas sin azúcar y sin gluten.',
+    precio: '',
+    linkPago: '',
+  },
+  {
+    id: 'recetario_proteico',
+    tipo: 'bono',
+    nombre: 'Recetario Alto en Proteína',
+    resumen: 'Recetas altas en proteína escritas para acompañar el entrenamiento, con ingredientes de todos los días.',
     precio: '',
     linkPago: '',
   },
@@ -78,8 +109,18 @@ export const PRODUCTOS: Producto[] = [
   },
 ];
 
+export const RECETARIO_DE: Record<Dieta, ProductoId> = {
+  omnivoro: 'recetario_omnivoro',
+  vegetariano: 'recetario_vegetariano',
+  vegano: 'recetario_vegano',
+  proteico: 'recetario_proteico',
+};
+
+export const RECETARIOS: ProductoId[] = Object.values(RECETARIO_DE);
+
 // Los bonos vienen con el programa: quien compro el principal los tiene.
-export const BONOS_DEL_PROGRAMA: ProductoId[] = ['recetario', 'movilidad', 'habitos'];
+// Movilidad y habitos siguen como bonos hasta que el dueno decida si quedan.
+export const BONOS_DEL_PROGRAMA: ProductoId[] = [...RECETARIOS, 'movilidad', 'habitos'];
 
 export function producto(id: ProductoId): Producto {
   return PRODUCTOS.find(p => p.id === id)!;

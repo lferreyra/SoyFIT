@@ -8,7 +8,7 @@ import { EXERCISE_LIBRARY } from '../data/exerciseLibrary';
 import { Dieta, Respuestas } from './cuestionario';
 import { armarPlan, Bloque, proximaSesion, Sesion } from './plan';
 import { guardarCompletadas, guardarRespuestas, leerCompletadas, leerRespuestas } from './estado';
-import { linkDePago, producto, ProductoId } from './oferta';
+import { linkDePago, producto, ProductoId, RECETARIO_DE } from './oferta';
 import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
 import { Logo } from './Logo';
 import { Portada } from './Portada';
@@ -270,8 +270,11 @@ const FichaReceta: React.FC<{ receta: Receta; etiqueta?: string }> = ({ receta, 
 
 const POR_PAGINA = 30;
 
-const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; email: string }> = ({ dieta, tiene, email }) => {
+const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; email: string }> = ({ dieta: suDieta, tiene, email }) => {
   const recetas = useRecetas();
+  // Cada recetario es un bono aparte: se ve el de su alimentacion y puede pasar a los otros que tenga.
+  const disponibles = (Object.keys(RECETARIO_DE) as Dieta[]).filter(d => tiene(RECETARIO_DE[d]));
+  const [dieta, setDieta] = useState<Dieta>(disponibles.includes(suDieta) ? suDieta : disponibles[0] ?? suDieta);
   const [vista, setVista] = useState<'menu' | 'todas'>(tiene('plan_comidas') ? 'menu' : 'todas');
   const [categoria, setCategoria] = useState<Categoria>('almuerzo');
   const [busqueda, setBusqueda] = useState('');
@@ -288,13 +291,13 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
       .sort((a, b) => b.s - a.s); // las simples primero
   }, [recetas, dieta, categoria, busqueda, faciles]);
 
-  useEffect(() => { setCantidad(POR_PAGINA); }, [categoria, busqueda, faciles]);
+  useEffect(() => { setCantidad(POR_PAGINA); }, [categoria, busqueda, faciles, dieta]);
 
-  if (!tiene('recetario')) {
+  if (disponibles.length === 0) {
     return (
       <>
         <Titulo>Recetas</Titulo>
-        <Bloqueado id="recetario" email={email} />
+        <Bloqueado id={RECETARIO_DE[suDieta]} email={email} />
       </>
     );
   }
@@ -303,7 +306,15 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
 
   return (
     <>
-      <Titulo sub={`Sin azúcar y sin gluten · alimentación ${NOMBRE_DIETA[dieta].toLowerCase()}`}>Recetas</Titulo>
+      <Titulo sub={`Sin azúcar y sin gluten · ${producto(RECETARIO_DE[dieta]).nombre}`}>Recetas</Titulo>
+
+      {disponibles.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 mb-3">
+          {disponibles.map(d => (
+            <button key={d} onClick={() => setDieta(d)} className={chip(dieta === d)}>{NOMBRE_DIETA[d]}</button>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2 mb-5 p-1 rounded-2xl bg-[var(--k-surface)]">
         <button onClick={() => setVista('menu')} className={`py-2.5 rounded-xl text-sm font-bold ${vista === 'menu' ? 'bg-[var(--k-accent)] text-[var(--k-on-accent)]' : ''}`}>Menú de la semana</button>

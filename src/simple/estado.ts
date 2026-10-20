@@ -6,7 +6,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { Respuestas } from './cuestionario';
-import { BONOS_DEL_PROGRAMA, ProductoId, PRODUCTOS } from './oferta';
+import { BONOS_DEL_PROGRAMA, ProductoId, PRODUCTOS, RECETARIOS } from './oferta';
 
 const CLAVE_RESPUESTAS = 'soyfit_respuestas';
 const ADMIN = 'lucas.ferreyra@gmail.com';
@@ -49,8 +49,11 @@ export async function leerCompras(usuario: User): Promise<ProductoId[]> {
   if (!email) return [];
   try {
     const snap = await getDoc(doc(db, 'compras', email));
-    const productos = (snap.exists() ? snap.data().productos : []) as ProductoId[];
-    return productos.includes('programa') ? [...new Set([...productos, ...BONOS_DEL_PROGRAMA])] : productos;
+    let productos = (snap.exists() ? snap.data().productos : []) as string[];
+    // Compras viejas con el recetario unico: equivalen a los 4 recetarios.
+    if (productos.includes('recetario')) productos = [...productos.filter(p => p !== 'recetario'), ...RECETARIOS];
+    const ids = productos as ProductoId[];
+    return ids.includes('programa') ? [...new Set([...ids, ...BONOS_DEL_PROGRAMA])] : ids;
   } catch {
     return [];
   }

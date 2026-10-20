@@ -5,7 +5,7 @@ import { ArrowLeft, Check, ChevronRight, Dumbbell, Lock } from 'lucide-react';
 import { PASOS, Respuestas } from './cuestionario';
 import { armarPlan, textoCarga } from './plan';
 import { guardarRespuestas, leerRespuestas } from './estado';
-import { BONOS_DEL_PROGRAMA, linkDePago, producto } from './oferta';
+import { BONOS_DEL_PROGRAMA, linkDePago, producto, RECETARIO_DE } from './oferta';
 import { Logo } from './Logo';
 import { Portada } from './Portada';
 
@@ -214,18 +214,14 @@ const NOMBRE_OBJETIVO: Record<string, string> = {
   fuerza: 'Ganar fuerza y agilidad',
 };
 
-const NOMBRE_DIETA: Record<string, string> = {
-  omnivoro: 'Como de todo',
-  vegetariano: 'Vegetariana',
-  vegano: 'Vegana',
-  proteico: 'Alta en proteína',
-};
-
 const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
   const plan = useMemo(() => armarPlan(respuestas), [respuestas]);
   const principal = producto('programa');
   const link = linkDePago('programa', respuestas.email, respuestas.nombre);
   const primera = plan.semanas[0].sesiones[0];
+  // El recetario de su alimentacion va primero; los otros 3 vienen igual.
+  const recetarioTuyo = respuestas.dieta && RECETARIO_DE[respuestas.dieta] ? RECETARIO_DE[respuestas.dieta] : undefined;
+  const bonosEnOrden = recetarioTuyo ? [recetarioTuyo, ...BONOS_DEL_PROGRAMA.filter(id => id !== recetarioTuyo)] : BONOS_DEL_PROGRAMA;
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pb-28">
@@ -271,10 +267,10 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
       <div className="mt-6 rounded-3xl bg-[var(--k-surface-2)] text-white p-5">
         <p className="text-xs font-bold text-[var(--k-accent)] uppercase tracking-wide">Lo que incluye</p>
         <Item titulo={principal.nombre} texto={principal.resumen} />
-        {BONOS_DEL_PROGRAMA.map(id => {
+        {bonosEnOrden.map(id => {
           const b = producto(id);
-          const texto = id === 'recetario' && respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? (respuestas.dieta === 'proteico' ? 'Recetas altas en proteína, sin azúcar y sin gluten, con ingredientes de todos los días.' : `Más de 1.700 recetas sin azúcar y sin gluten, filtradas para alimentación ${NOMBRE_DIETA[respuestas.dieta].toLowerCase()}.`) : b.resumen;
-          return <Item key={id} titulo={`Bono: ${b.nombre}`} texto={texto} />;
+          const tuyo = id === recetarioTuyo;
+          return <Item key={id} titulo={`Bono: ${b.nombre}${tuyo ? ' · el de tu alimentación' : ''}`} texto={b.resumen} />;
         })}
         {principal.precio && <p className="mt-5 text-3xl font-extrabold">{principal.precio}</p>}
       </div>
