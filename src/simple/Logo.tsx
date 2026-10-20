@@ -1,5 +1,6 @@
 // Marca Kalisfy: la K es una persona (cabeza, brazo arriba y pierna abierta, simetricos a 45 grados).
-// Los archivos para anuncios y redes estan en public/marca/.
+// Wordmark en Outfit 700 (eleccion del dueno, 2026-10-20). Los archivos para anuncios y
+// redes estan en public/marca/.
 
 import React from 'react';
 
@@ -19,7 +20,7 @@ export const Isotipo: React.FC<{ size?: number }> = ({ size = 32 }) => (
 export const Logo: React.FC<{ size?: number }> = ({ size = 32 }) => (
   <div className="flex items-center justify-center gap-2">
     <Isotipo size={size} />
-    <span className="font-extrabold" style={{ fontSize: size * 0.66, letterSpacing: '-0.035em' }}>
+    <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: size * 0.72, letterSpacing: '-0.02em' }}>
       Kalis<span className="text-[var(--k-accent)]">fy</span>
     </span>
   </div>
