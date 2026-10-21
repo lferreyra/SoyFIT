@@ -60,10 +60,21 @@ export function nivelDesdeRespuestas(r: Respuestas): 1 | 2 | 3 {
 
 export const NOMBRE_NIVEL = { 1: 'Principiante', 2: 'Intermedio', 3: 'Avanzado' } as const;
 
-function escalon(lista: string[], inicio: number, semana: number): Exercise {
+function escalon(lista: string[], inicio: number, semana: number, tope = lista.length - 1): Exercise {
   // Las semanas 3 y 4 suben un escalon en cada progresion.
   const subida = semana >= 3 ? 1 : 0;
-  return porId(lista[Math.min(inicio + subida, lista.length - 1)]);
+  return porId(lista[Math.min(inicio + subida, tope)]);
+}
+
+// Con una molestia, la progresion afectada no pasa de un escalon de bajo impacto:
+// rodillas hasta la sentadilla libre (sin zancadas ni bulgara), hombros y munecas hasta
+// la flexion con rodillas apoyadas.
+export function topes(r: Respuestas) {
+  const m = r.molestias ?? [];
+  return {
+    piernas: m.includes('rodilla') ? 1 : PIERNAS.length - 1,
+    empuje: m.includes('hombro') || m.includes('muneca') ? 2 : EMPUJE.length - 1,
+  };
 }
 
 function bloque(e: Exercise, semana: number, cortas: boolean): Bloque {
@@ -94,10 +105,11 @@ export function armarPlan(r: Respuestas): Plan {
   const minutos = r.minutos ?? 20;
   const cortas = minutos <= 15;
   const inicio = INICIO[nivel];
+  const tope = topes(r);
 
   const semanas = [1, 2, 3, 4].map(semana => {
-    const empuje = escalon(EMPUJE, inicio.empuje, semana);
-    const piernas = escalon(PIERNAS, inicio.piernas, semana);
+    const empuje = escalon(EMPUJE, Math.min(inicio.empuje, tope.empuje), semana, tope.empuje);
+    const piernas = escalon(PIERNAS, Math.min(inicio.piernas, tope.piernas), semana, tope.piernas);
     const core = escalon(CORE, inicio.core, semana);
 
     // Tres tipos de dia que se van rotando.
