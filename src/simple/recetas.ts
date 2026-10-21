@@ -3,7 +3,7 @@
 // palabras clave al importarlas: son aproximadas.
 
 import { useEffect, useState } from 'react';
-import { Dieta } from './cuestionario';
+import { Dieta, Objetivo } from './cuestionario';
 
 export type Categoria = 'desayuno' | 'almuerzo' | 'cena' | 'snack' | 'dulce';
 
@@ -15,6 +15,7 @@ export interface Receta {
   x: 0 | 1; // 1 = lleva algo dificil o caro de conseguir en Argentina (mango, tahini, tofu...)
   s: 0 | 1; // 1 = simple: ingredientes faciles, pocos y preparacion corta
   p: 0 | 1; // 1 = del recetario alto en proteina (escrito para Kalisfy, scripts/recetas-proteicas.json)
+  m?: 1; // 1 = desayuno de todos los dias para el menu (simple, pocos ingredientes; 2026-10-21)
   f?: 1; // 1 = tiene foto en public/recetas/<slug>.jpg (por ahora, las de las 2 primeras semanas del menu)
 }
 
@@ -90,11 +91,23 @@ export function aptaPara(receta: Receta, dieta: Dieta): boolean {
 }
 
 // Menu de la semana del programa: no repite dentro de la semana y cambia cada semana.
-export function menuSemanal(recetas: Receta[], dieta: Dieta, fecha = new Date()) {
+// Desayunos: solo los de todos los dias (m), que son simples de verdad. Si el objetivo es bajar
+// grasa, desayuno y cena salen de los altos en proteina, mientras alcancen para no repetir en la semana.
+export const priorizaProteina = (objetivo?: Objetivo) => objetivo === 'bajar_grasa';
+
+export function menuSemanal(recetas: Receta[], dieta: Dieta, fecha = new Date(), objetivo?: Objetivo) {
   const semana = semanaDelPrograma(fecha);
   const desde = inicioDelMenu() + semana * 7 * DIA;
+  const conProteina = (lista: Receta[], c: Categoria) => {
+    if (!priorizaProteina(objetivo) || (c !== 'desayuno' && c !== 'cena')) return lista;
+    const altas = lista.filter(r => r.p === 1);
+    return altas.length >= 7 ? altas : lista;
+  };
   // El menu usa solo recetas simples con ingredientes faciles de conseguir.
-  const por = (c: Categoria) => recetas.filter(r => r.c === c && r.s === 1 && aptaPara(r, dieta));
+  const por = (c: Categoria) => conProteina(
+    recetas.filter(r => (c === 'desayuno' ? r.m === 1 && (r.x === 0 || dieta === 'vegano') : r.c === c && r.s === 1) && aptaPara(r, dieta)),
+    c,
+  );
   const momentos: { c: Categoria; nombre: string }[] = [
     { c: 'desayuno', nombre: 'Desayuno' },
     { c: 'almuerzo', nombre: 'Almuerzo' },

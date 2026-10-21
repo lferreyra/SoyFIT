@@ -5,7 +5,7 @@ import { User } from 'firebase/auth';
 import { BookOpen, Calendar, Check, ChevronDown, Home, Lock, LogOut, Search, User as UserIcon } from 'lucide-react';
 import { logOut, saveWorkoutSessionToFirestore } from '../lib/firebase';
 import { EXERCISE_LIBRARY } from '../data/exerciseLibrary';
-import { Dieta, Respuestas } from './cuestionario';
+import { Dieta, Objetivo, Respuestas } from './cuestionario';
 import { armarPlan, Bloque, proximaSesion, Sesion } from './plan';
 import { guardarCompletadas, guardarRespuestas, leerCompletadas, leerRespuestas } from './estado';
 import { linkDePago, producto, ProductoId, RECETARIO_DE } from './oferta';
@@ -13,7 +13,7 @@ import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
 import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
 import { fotoEjercicio } from './fotos';
-import { aptaPara, CATEGORIAS, Categoria, fotoReceta, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
+import { aptaPara, CATEGORIAS, Categoria, fotoReceta, menuSemanal, NOMBRE_DIETA, priorizaProteina, Receta, useRecetas } from './recetas';
 
 type Pestana = 'hoy' | 'programa' | 'recetas' | 'perfil';
 
@@ -66,7 +66,7 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
         <Programa plan={plan} completadas={completadas} onEmpezar={setEnCurso} tiene={tiene} email={usuario?.email ?? ''} />
       )}
       {pestana === 'recetas' && (
-        <Recetas dieta={respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? respuestas.dieta : 'omnivoro'} tiene={tiene} email={usuario?.email ?? ''} />
+        <Recetas dieta={respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? respuestas.dieta : 'omnivoro'} objetivo={respuestas.objetivo} tiene={tiene} email={usuario?.email ?? ''} />
       )}
       {pestana === 'perfil' && (
         <Perfil usuario={usuario} respuestas={respuestas} onCambio={setRespuestas} compras={compras} />
@@ -281,7 +281,7 @@ const FichaReceta: React.FC<{ receta: Receta; etiqueta?: string }> = ({ receta, 
 
 const POR_PAGINA = 30;
 
-const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; email: string }> = ({ dieta: suDieta, tiene, email }) => {
+const Recetas: React.FC<{ dieta: Dieta; objetivo?: Objetivo; tiene: (id: ProductoId) => boolean; email: string }> = ({ dieta: suDieta, objetivo, tiene, email }) => {
   const recetas = useRecetas();
   // Cada recetario es un bono aparte: se ve el de su alimentacion y puede pasar a los otros que tenga.
   const disponibles = (Object.keys(RECETARIO_DE) as Dieta[]).filter(d => tiene(RECETARIO_DE[d]));
@@ -337,8 +337,13 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
       {recetas && vista === 'menu' && (
         tiene('plan_comidas') ? (
           <div className="space-y-6">
-            <p className="text-sm text-[var(--k-muted)]">Semana {menuSemanal(recetas, dieta)[0].semana} de tu menú · cambia cada semana</p>
-            {menuSemanal(recetas, dieta).map(d => (
+            <p className="text-sm text-[var(--k-muted)]">Semana {menuSemanal(recetas, dieta, undefined, objetivo)[0].semana} de tu menú · cambia cada semana</p>
+            {priorizaProteina(objetivo) && (
+              <p className="text-sm rounded-2xl bg-[var(--k-accent-soft)] text-[var(--k-ink)] px-4 py-3">
+                Como querés bajar grasa, los desayunos y las cenas son altos en proteína: te dan saciedad por más tiempo.
+              </p>
+            )}
+            {menuSemanal(recetas, dieta, undefined, objetivo).map(d => (
               <div key={d.dia}>
                 <p className={`text-xs font-bold uppercase tracking-wide ${d.hoy ? 'text-[var(--k-accent)]' : 'text-[var(--k-muted)]'}`}>{d.dia}{d.hoy ? ' · hoy' : ''}</p>
                 <div className="mt-2 space-y-2">
