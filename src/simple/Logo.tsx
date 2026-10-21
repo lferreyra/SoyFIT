@@ -16,7 +16,7 @@ export const Logo: React.FC<{ size?: number }> = ({ size = 32 }) => (
 
 // Cargador: el isotipo en su recuadro negro con el punto lima latiendo (la animacion k-punto vive
 // en index.html, junto a la pantalla de carga que se ve antes de que baje la app).
-export const Cargador: React.FC<{ size?: number; texto?: string }> = ({ size = 72, texto }) => (
+export const Cargador: React.FC<{ size?: number; texto?: string }> = ({ size = 168, texto }) => (
   <div role="status" aria-label={texto ?? 'Cargando'} className="flex flex-col items-center gap-4">
     <svg width={size} height={size} viewBox="-274 -983 1261 1261" aria-hidden="true">
       <g transform="scale(1 -1)">

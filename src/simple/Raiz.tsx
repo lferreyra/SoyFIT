@@ -32,7 +32,7 @@ const ConAcceso: React.FC = () => {
 };
 
 const Cargando = () => (
-  <div className="min-h-screen flex items-center justify-center"><Cargador /></div>
+  <div className="min-h-screen flex items-center justify-center"><Cargador size={Math.min(200, Math.round(window.innerWidth * 0.44))} /></div>
 );
 
 const SinCompra: React.FC<{ email: string }> = ({ email }) => {

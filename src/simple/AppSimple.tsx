@@ -324,7 +324,7 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
         <button onClick={() => setVista('todas')} className={`py-2.5 rounded-xl text-sm font-bold ${vista === 'todas' ? 'bg-[var(--k-accent)] text-[var(--k-on-accent)]' : ''}`}>Todas las recetas</button>
       </div>
 
-      {!recetas && <div className="py-12 flex justify-center"><Cargador size={56} texto="Cargando recetas…" /></div>}
+      {!recetas && <div className="py-12 flex justify-center"><Cargador size={112} texto="Cargando recetas…" /></div>}
 
       {recetas && vista === 'menu' && (
         tiene('plan_comidas') ? (
