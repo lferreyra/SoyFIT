@@ -57,6 +57,7 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
       <div className="flex mb-5">
         <Logo size={26} />
       </div>
+      <div key={pestana} className="k-entrar">
       {pestana === 'hoy' && (
         <Hoy nombre={nombre} plan={plan} completadas={completadas} onEmpezar={setEnCurso} />
       )}
@@ -69,8 +70,9 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
       {pestana === 'perfil' && (
         <Perfil usuario={usuario} respuestas={respuestas} onCambio={setRespuestas} compras={compras} />
       )}
+      </div>
 
-      <nav className="fixed bottom-0 inset-x-0 bg-[var(--k-surface)] border-t border-[var(--k-line)]">
+      <nav className="fixed bottom-0 inset-x-0 bg-[var(--k-surface)]/95 backdrop-blur border-t border-[var(--k-line)] pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-md mx-auto grid grid-cols-4">
           {([
             ['hoy', 'Hoy', Home],
@@ -81,9 +83,10 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
             <button
               key={id}
               onClick={() => setPestana(id)}
-              className={`py-3 flex flex-col items-center gap-1 text-xs font-semibold ${pestana === id ? 'text-[var(--k-ink)]' : 'text-[var(--k-muted)]'}`}
+              className={`relative py-3 flex flex-col items-center gap-1 text-xs font-semibold ${pestana === id ? 'text-[var(--k-ink)]' : 'text-[var(--k-muted)]'}`}
             >
-              <Icono size={22} />
+              {pestana === id && <span className="absolute top-0 h-0.5 w-8 rounded-full bg-[var(--k-accent)]" />}
+              <Icono size={22} className={pestana === id ? 'text-[var(--k-accent)]' : ''} />
               {texto}
             </button>
           ))}
