@@ -13,7 +13,7 @@ import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
 import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
 import { fotoEjercicio } from './fotos';
-import { aptaPara, CATEGORIAS, Categoria, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
+import { aptaPara, CATEGORIAS, Categoria, fotoReceta, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
 
 type Pestana = 'hoy' | 'programa' | 'recetas' | 'perfil';
 
@@ -258,16 +258,23 @@ const Bloqueado: React.FC<{ id: ProductoId; email: string }> = ({ id, email }) =
 
 const FichaReceta: React.FC<{ receta: Receta; etiqueta?: string }> = ({ receta, etiqueta }) => {
   const [abierta, setAbierta] = useState(false);
+  const foto = fotoReceta(receta);
   return (
     <div className="rounded-2xl bg-[var(--k-surface)] overflow-hidden">
-      <button onClick={() => setAbierta(!abierta)} className="w-full p-4 flex gap-3 text-left">
+      <button onClick={() => setAbierta(!abierta)} className={`w-full flex gap-3 text-left items-center ${foto ? 'p-3' : 'p-4'}`}>
+        {foto && !abierta && <img src={foto} alt="" loading="lazy" className="w-16 h-16 rounded-xl object-cover bg-[var(--k-bg)] shrink-0" />}
         <div className="flex-1">
           {etiqueta && <p className="text-xs font-bold uppercase tracking-wide text-[var(--k-accent)]">{etiqueta}</p>}
           <p className="font-bold leading-tight mt-0.5">{receta.n}</p>
         </div>
         <ChevronDown size={18} className={`text-[var(--k-muted)] transition shrink-0 mt-1 ${abierta ? 'rotate-180' : ''}`} />
       </button>
-      {abierta && <p className="px-4 pb-4 text-sm leading-relaxed">{receta.t}</p>}
+      {abierta && (
+        <div className="px-4 pb-4 k-entrar">
+          {foto && <img src={foto} alt={receta.n} className="w-full aspect-[3/2] object-cover rounded-xl mb-3 bg-[var(--k-bg)]" />}
+          <p className="text-sm leading-relaxed">{receta.t}</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -330,9 +337,10 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
       {recetas && vista === 'menu' && (
         tiene('plan_comidas') ? (
           <div className="space-y-6">
+            <p className="text-sm text-[var(--k-muted)]">Semana {menuSemanal(recetas, dieta)[0].semana} de tu menú · cambia cada semana</p>
             {menuSemanal(recetas, dieta).map(d => (
               <div key={d.dia}>
-                <p className="text-xs font-bold uppercase tracking-wide text-[var(--k-muted)]">{d.dia}</p>
+                <p className={`text-xs font-bold uppercase tracking-wide ${d.hoy ? 'text-[var(--k-accent)]' : 'text-[var(--k-muted)]'}`}>{d.dia}{d.hoy ? ' · hoy' : ''}</p>
                 <div className="mt-2 space-y-2">
                   {d.comidas.map(c => c.receta && <FichaReceta key={c.momento} receta={c.receta} etiqueta={c.momento} />)}
                 </div>
