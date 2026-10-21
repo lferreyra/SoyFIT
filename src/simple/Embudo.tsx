@@ -8,6 +8,7 @@ import {
 import { Opcion, Paso, PASOS, reflejos, resolver, Respuestas, Seccion, textoOpcion } from './cuestionario';
 import { armarPlan, textoCarga } from './plan';
 import { guardarRespuestas, leerRespuestas } from './estado';
+import { fotoArchivo, porGenero } from './fotos';
 import { BONOS_DEL_PROGRAMA, linkDePago, producto, RECETARIO_DE } from './oferta';
 import { Logo } from './Logo';
 import { Portada } from './Portada';
@@ -60,7 +61,7 @@ export const Embudo: React.FC = () => {
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pb-32 flex flex-col">
       {indice === 0 ? (
-        <Portada foto={sexoUrl === 'mujer' ? '/ejercicios/birddog.jpg' : '/ejercicios/diamondpushup.jpg'} className="-mx-4 h-[46vh] min-h-[320px]">
+        <Portada foto={sexoUrl === 'mujer' ? fotoArchivo('birddog', 'mujer') : fotoArchivo('diamondpushup', 'hombre')} className="-mx-4 h-[46vh] min-h-[320px]">
           <div className="h-full flex flex-col justify-between px-4 pt-5 pb-2">
             <div className="flex"><Logo size={30} /></div>
             <div>
@@ -206,7 +207,7 @@ const Dato: React.FC<{
   const cifra = resolver(paso.cifra, respuestas);
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pb-32">
-      <Portada foto={paso.foto} className="-mx-4 h-[44vh] min-h-[300px]">
+      <Portada foto={porGenero(paso.foto, respuestas.sexo)} className="-mx-4 h-[44vh] min-h-[300px]">
         <div className="px-4" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.55)' }}>
           <Encabezado seccion={paso.seccion} indice={indice} total={total} onVolver={onVolver} sobreFoto />
         </div>
@@ -367,7 +368,7 @@ const Armando: React.FC<{ respuestas: Respuestas; onListo: () => void }> = ({ re
   const r = 52;
   const c = 2 * Math.PI * r;
   return (
-    <Portada foto="/ejercicios/wallpushup.jpg" className="min-h-screen">
+    <Portada foto={porGenero('/ejercicios/wallpushup.jpg', respuestas.sexo)} className="min-h-screen">
       <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-end pb-14">
         <div className="relative w-32 h-32">
           <svg viewBox="0 0 120 120" className="w-32 h-32 -rotate-90">
@@ -414,7 +415,7 @@ const Resultado: React.FC<{ respuestas: Respuestas }> = ({ respuestas }) => {
 
   return (
     <div className="min-h-screen max-w-md mx-auto px-4 pb-28">
-      <Portada foto="/ejercicios/glutebridge.jpg" className="-mx-4 h-[38vh] min-h-[260px]">
+      <Portada foto={porGenero('/ejercicios/glutebridge.jpg', respuestas.sexo)} className="-mx-4 h-[38vh] min-h-[260px]">
         <div className="h-full flex flex-col justify-between px-4 pt-5 pb-2">
           <div className="flex"><Logo size={28} /></div>
           <div>

@@ -12,6 +12,7 @@ import { linkDePago, producto, ProductoId, RECETARIO_DE } from './oferta';
 import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
 import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
+import { fotoEjercicio } from './fotos';
 import { aptaPara, CATEGORIAS, Categoria, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
 
 type Pestana = 'hoy' | 'programa' | 'recetas' | 'perfil';
@@ -125,7 +126,7 @@ const Hoy: React.FC<{ nombre: string; plan: ReturnType<typeof armarPlan>; comple
 
       {sesion ? (
         <>
-          <Portada foto={sesion.principal[0].ejercicio.imageUrl} className="rounded-3xl mb-5 min-h-[260px]">
+          <Portada foto={fotoEjercicio(sesion.principal[0].ejercicio)} className="rounded-3xl mb-5 min-h-[260px]">
           <div className="p-5 pt-24 text-white">
             <p className="text-xs font-bold uppercase tracking-wide text-[var(--k-accent)]">Semana {sesion.semana} · Día {sesion.dia}</p>
             <p className="text-xl font-extrabold mt-1">{sesion.titulo}</p>

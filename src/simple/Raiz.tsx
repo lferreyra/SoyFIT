@@ -8,6 +8,7 @@ import { esVistaPrevia, leerCompras, leerRespuestas, useUsuario } from './estado
 import { linkDePago, PRODUCTOS, ProductoId } from './oferta';
 import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
+import { porGenero } from './fotos';
 
 export const Raiz: React.FC = () => {
   const enApp = location.pathname.startsWith('/app');
@@ -84,7 +85,7 @@ const Acceso: React.FC = () => {
   const claseInput = 'mt-1 w-full px-4 py-4 rounded-2xl bg-[var(--k-surface)] font-semibold outline-none focus:ring-2 focus:ring-[var(--k-accent)]';
 
   return (
-    <Portada foto="/ejercicios/birddog.jpg" className="min-h-screen">
+    <Portada foto={porGenero('/ejercicios/birddog.jpg')} className="min-h-screen">
     <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col justify-end py-10">
       <div className="mb-8">
         <Logo size={36} />

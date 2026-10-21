@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Check, ChevronDown, Minus, Pause, Play, Plus, SkipForward, X } from 'lucide-react';
 import { getAssetUrl } from '../utils/assets';
 import { Bloque, Sesion, textoCarga } from './plan';
+import { fotoEjercicio } from './fotos';
 
 export const FichaEjercicio: React.FC<{ bloque: Bloque }> = ({ bloque }) => {
   const [abierta, setAbierta] = useState(false);
@@ -12,7 +13,7 @@ export const FichaEjercicio: React.FC<{ bloque: Bloque }> = ({ bloque }) => {
   return (
     <div className="rounded-2xl bg-[var(--k-surface)] overflow-hidden">
       <button onClick={() => setAbierta(!abierta)} className="w-full flex items-center gap-3 p-3 text-left">
-        <img src={getAssetUrl(e.imageUrl)} alt="" className="w-14 h-14 rounded-xl object-cover bg-[var(--k-bg)] shrink-0" loading="lazy" />
+        <img src={getAssetUrl(fotoEjercicio(e))} alt="" className="w-14 h-14 rounded-xl object-cover bg-[var(--k-bg)] shrink-0" loading="lazy" />
         <div className="flex-1 min-w-0">
           <p className="font-bold leading-tight">{e.name}</p>
           <p className="text-sm text-[var(--k-muted)]">{textoCarga(bloque)}</p>
@@ -21,7 +22,7 @@ export const FichaEjercicio: React.FC<{ bloque: Bloque }> = ({ bloque }) => {
       </button>
       {abierta && (
         <div className="px-4 pb-4">
-          <img src={getAssetUrl(e.imageUrl)} alt={e.name} className="w-full aspect-video object-cover rounded-xl bg-[var(--k-bg)]" />
+          <img src={getAssetUrl(fotoEjercicio(e))} alt={e.name} className="w-full aspect-video object-cover rounded-xl bg-[var(--k-bg)]" />
           <p className="mt-4 text-xs font-bold uppercase tracking-wide text-[var(--k-accent)]">Cómo se hace</p>
           <ol className="mt-2 space-y-2 text-sm list-decimal pl-5">
             {e.instructions.map((p, i) => <li key={i}>{p}</li>)}
@@ -239,7 +240,7 @@ export const Reproductor: React.FC<{ sesion: Sesion; onCerrar: () => void; onTer
 
       {/* Foto del ejercicio (en el descanso, la del que sigue) */}
       <div className="relative mt-3 rounded-3xl overflow-hidden bg-[var(--k-surface)]">
-        <img key={muestra.bloque.ejercicio.id} src={getAssetUrl(muestra.bloque.ejercicio.imageUrl)} alt={muestra.bloque.ejercicio.name}
+        <img key={muestra.bloque.ejercicio.id} src={getAssetUrl(fotoEjercicio(muestra.bloque.ejercicio))} alt={muestra.bloque.ejercicio.name}
           className={`w-full aspect-[16/10] object-cover k-entrar ${enDescanso ? 'opacity-60' : ''}`} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0D0F0C] via-[#0D0F0C]/30 to-transparent" />
         <div className="absolute left-4 right-4 bottom-3">
