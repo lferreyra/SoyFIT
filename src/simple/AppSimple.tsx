@@ -10,7 +10,7 @@ import { armarPlan, Bloque, proximaSesion, Sesion } from './plan';
 import { guardarCompletadas, guardarRespuestas, leerCompletadas, leerRespuestas } from './estado';
 import { linkDePago, producto, ProductoId, RECETARIO_DE } from './oferta';
 import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
-import { Logo } from './Logo';
+import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
 import { aptaPara, CATEGORIAS, Categoria, menuSemanal, NOMBRE_DIETA, Receta, useRecetas } from './recetas';
 
@@ -321,7 +321,7 @@ const Recetas: React.FC<{ dieta: Dieta; tiene: (id: ProductoId) => boolean; emai
         <button onClick={() => setVista('todas')} className={`py-2.5 rounded-xl text-sm font-bold ${vista === 'todas' ? 'bg-[var(--k-accent)] text-[var(--k-on-accent)]' : ''}`}>Todas las recetas</button>
       </div>
 
-      {!recetas && <p className="text-[var(--k-muted)]">Cargando recetas…</p>}
+      {!recetas && <div className="py-12 flex justify-center"><Cargador size={56} texto="Cargando recetas…" /></div>}
 
       {recetas && vista === 'menu' && (
         tiene('plan_comidas') ? (

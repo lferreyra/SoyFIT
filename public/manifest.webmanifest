@@ -1,0 +1,17 @@
+{
+  "name": "Kalisfy",
+  "short_name": "Kalisfy",
+  "description": "Calistenia en casa para tu nivel",
+  "lang": "es",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D0F0C",
+  "theme_color": "#0D0F0C",
+  "icons": [
+    { "src": "/marca/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/marca/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/marca/icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

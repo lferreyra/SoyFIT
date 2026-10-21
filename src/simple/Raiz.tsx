@@ -6,7 +6,7 @@ import { Embudo } from './Embudo';
 import { AppSimple } from './AppSimple';
 import { esVistaPrevia, leerCompras, leerRespuestas, useUsuario } from './estado';
 import { linkDePago, PRODUCTOS, ProductoId } from './oferta';
-import { Logo } from './Logo';
+import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
 
 export const Raiz: React.FC = () => {
@@ -32,7 +32,7 @@ const ConAcceso: React.FC = () => {
 };
 
 const Cargando = () => (
-  <div className="min-h-screen flex items-center justify-center text-[var(--k-muted)]">Cargando…</div>
+  <div className="min-h-screen flex items-center justify-center"><Cargador /></div>
 );
 
 const SinCompra: React.FC<{ email: string }> = ({ email }) => {
