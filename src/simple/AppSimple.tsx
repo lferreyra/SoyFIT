@@ -13,7 +13,7 @@ import { FichaEjercicio, Reproductor, VistaSesion } from './Entreno';
 import { Cargador, Logo } from './Logo';
 import { Portada } from './Portada';
 import { fotoEjercicio } from './fotos';
-import { aptaPara, CATEGORIAS, Categoria, fotoReceta, menuSemanal, NOMBRE_DIETA, priorizaProteina, Receta, useRecetas } from './recetas';
+import { aptaPara, AVISO_DIETA, CATEGORIAS, Categoria, DIETA_RECOMENDADA, fotoReceta, menuSemanal, NOMBRE_DIETA, priorizaProteina, Receta, useRecetas } from './recetas';
 
 type Pestana = 'hoy' | 'programa' | 'recetas' | 'perfil';
 
@@ -66,7 +66,7 @@ export const AppSimple: React.FC<{ usuario: User | null; compras: ProductoId[] }
         <Programa plan={plan} completadas={completadas} onEmpezar={setEnCurso} tiene={tiene} email={usuario?.email ?? ''} />
       )}
       {pestana === 'recetas' && (
-        <Recetas dieta={respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? respuestas.dieta : 'omnivoro'} objetivo={respuestas.objetivo} tiene={tiene} email={usuario?.email ?? ''} />
+        <Recetas dieta={respuestas.dieta && NOMBRE_DIETA[respuestas.dieta] ? respuestas.dieta : 'omnivoro'} objetivo={respuestas.objetivo} tiene={tiene} email={usuario?.email ?? ''} onElegir={d => setRespuestas({ ...respuestas, dieta: d })} />
       )}
       {pestana === 'perfil' && (
         <Perfil usuario={usuario} respuestas={respuestas} onCambio={setRespuestas} compras={compras} />
@@ -281,11 +281,14 @@ const FichaReceta: React.FC<{ receta: Receta; etiqueta?: string }> = ({ receta, 
 
 const POR_PAGINA = 30;
 
-const Recetas: React.FC<{ dieta: Dieta; objetivo?: Objetivo; tiene: (id: ProductoId) => boolean; email: string }> = ({ dieta: suDieta, objetivo, tiene, email }) => {
+const Recetas: React.FC<{ dieta: Dieta; objetivo?: Objetivo; tiene: (id: ProductoId) => boolean; email: string; onElegir: (d: Dieta) => void }> = ({ dieta: suDieta, objetivo, tiene, email, onElegir }) => {
   const recetas = useRecetas();
   // Cada recetario es un bono aparte: se ve el de su alimentacion y puede pasar a los otros que tenga.
   const disponibles = (Object.keys(RECETARIO_DE) as Dieta[]).filter(d => tiene(RECETARIO_DE[d]));
   const [dieta, setDieta] = useState<Dieta>(disponibles.includes(suDieta) ? suDieta : disponibles[0] ?? suDieta);
+  const recomendada = objetivo ? DIETA_RECOMENDADA[objetivo] : undefined;
+  // Lo que elige aca queda como su alimentacion (la misma que ve en Perfil).
+  const elegir = (d: Dieta) => { setDieta(d); onElegir(d); };
   const [vista, setVista] = useState<'menu' | 'todas'>(tiene('plan_comidas') ? 'menu' : 'todas');
   const [categoria, setCategoria] = useState<Categoria>('almuerzo');
   const [busqueda, setBusqueda] = useState('');
@@ -319,12 +322,31 @@ const Recetas: React.FC<{ dieta: Dieta; objetivo?: Objetivo; tiene: (id: Product
     <>
       <Titulo sub={`Sin azúcar y sin gluten · ${producto(RECETARIO_DE[dieta]).nombre}`}>Recetas</Titulo>
 
-      {disponibles.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 mb-3">
-          {disponibles.map(d => (
-            <button key={d} onClick={() => setDieta(d)} className={chip(dieta === d)}>{NOMBRE_DIETA[d]}</button>
-          ))}
+      {recomendada && (
+        <div className="rounded-2xl bg-[var(--k-accent-soft)] px-4 py-4 mb-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--k-accent)]">Tu dieta recomendada</p>
+          <p className="mt-1 text-lg font-bold">{NOMBRE_DIETA[recomendada.dieta]}</p>
+          <p className="mt-1 text-sm">{recomendada.porque}</p>
+          {dieta !== recomendada.dieta && disponibles.includes(recomendada.dieta) && (
+            <button onClick={() => elegir(recomendada.dieta)} className="mt-3 px-4 py-2 rounded-full text-sm font-bold bg-[var(--k-accent)] text-[var(--k-on-accent)]">
+              Usar esta dieta
+            </button>
+          )}
+          <p className="mt-3 text-xs text-[var(--k-muted)]">{AVISO_DIETA}</p>
         </div>
+      )}
+
+      {disponibles.length > 1 && (
+        <>
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--k-muted)] mb-2">Elegí tu alimentación</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {disponibles.map(d => (
+              <button key={d} onClick={() => elegir(d)} className={chip(dieta === d)}>
+                {NOMBRE_DIETA[d]}{recomendada?.dieta === d ? ' ★' : ''}
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       <div className="grid grid-cols-2 gap-2 mb-5 p-1 rounded-2xl bg-[var(--k-surface)]">

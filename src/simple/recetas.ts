@@ -66,6 +66,30 @@ export const NOMBRE_DIETA: Record<Dieta, string> = {
   proteico: 'Alta en proteína',
 };
 
+// Dieta que la app recomienda segun el objetivo del cuestionario (pedido de Lucas, 2026-10-22).
+// Es una sugerencia: la persona elige despues su alimentacion entre los recetarios que tiene.
+export const DIETA_RECOMENDADA: Record<Objetivo, { dieta: Dieta; porque: string }> = {
+  bajar_grasa: {
+    dieta: 'proteico',
+    porque: 'La proteína te da saciedad por más tiempo y ayuda a cuidar el músculo mientras bajás grasa.',
+  },
+  tonificar: {
+    dieta: 'proteico',
+    porque: 'Para marcar, el músculo necesita proteína para recuperarse después de cada sesión.',
+  },
+  ganar_musculo: {
+    dieta: 'proteico',
+    porque: 'La proteína es la materia prima del músculo: sin ella, el entrenamiento rinde menos.',
+  },
+  fuerza: {
+    dieta: 'omnivoro',
+    porque: 'Para ganar fuerza y agilidad conviene una alimentación variada, con hidratos que te den energía para rendir.',
+  },
+};
+
+export const AVISO_DIETA =
+  'Es una recomendación general según tu objetivo, no una indicación médica. Si tenés alguna condición de salud, estás embarazada o tomás medicación, consultá con un médico o nutricionista antes de cambiar tu alimentación.';
+
 let cache: Receta[] | null = null;
 
 export function useRecetas(): Receta[] | null {
